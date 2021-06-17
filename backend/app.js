@@ -1,6 +1,7 @@
 require('dotenv').config()
 const express = require('express');
 const helmet = require("helmet");
+const userRoutes = require('./routes/user');
 const { Sequelize } = require('sequelize');
 
 const sequelize = new Sequelize("groupomania", `${process.env.DB_USER}`, `${process.env.DB_PASS}`, {
@@ -26,6 +27,5 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
-
-
+app.use('/api/auth', userRoutes);
 module.exports = app;
