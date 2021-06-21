@@ -1,20 +1,11 @@
-require('dotenv').config()
 const express = require('express');
 const helmet = require("helmet");
 const userRoutes = require('./routes/user');
-const { Sequelize } = require('sequelize');
 
-const sequelize = new Sequelize("groupomania", `${process.env.DB_USER}`, `${process.env.DB_PASS}`, {
-    dialect: "mysql",
-    host: "localhost"
+const db = require("./models");
+db.sequelize.sync({ force: true }).then(() => {
+  console.log("Drop and re-sync db.");
 });
-
-try {
-   sequelize.authenticate();
-   console.log('Connecté à la base de données MySQL!');
- } catch (error) {
-   console.error('Impossible de se connecter, erreur suivante :', error);
- }
 
 const app = express();
 app.use(helmet());

@@ -1,33 +1,30 @@
-const bcrypt = require('bcrypt');
-const User = require('../models/User');
-const jwt = require('jsonwebtoken');
-const maskData = require('maskdata');
-const passwordValidator = require('password-validator');
-
-const schemaPassValid = new passwordValidator();
-
-schemaPassValid
-.is().min(8)
-.is().max(50)
-.has().uppercase()
-.has().lowercase()
-.has().digits(2)
-.has().not().spaces()
-.is().not().oneOf(['Passw0rd', 'Password123']);
+const db = require("../models")
+const User = db.users
+const Role = db.roles
 
 exports.signup = (req, res, next) => {
-  if (!schemaPassValid.validate(req.body.password)) {
-    res.status(401).json({message:"Sécurité du mot de passe faible. Il doit contenir au moins 8 caractère, des majuscules et deux chiffres"})
-  }
-  bcrypt.hash(req.body.password, 10)
-    .then(hash => {
-      const user = User.build({
-        email: maskData.maskEmail2(req.body.email),
-        password: hash
-      });
-      user.save()
-        .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
-        .catch(error => res.status(400).json({ error }));
+  db.roles.create({ name : "employé" })
+
+  console.log(req.body)
+
+  const user = {
+    username: req.body.username,
+    email: req.body.email,
+    password: req.body.password,
+    sex: req.body.sex,
+    role_id : 1
+  };
+
+  console.log(user)
+
+  User.create(user)
+    .then(data => {
+      res.send(data);
     })
-    .catch(error => res.status(500).json({ error }));
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while creating the Tutorial."
+      });
+    });
 };

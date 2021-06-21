@@ -1,55 +1,36 @@
-require('dotenv').config()
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = new Sequelize("groupomania", `${process.env.DB_USER}`, `${process.env.DB_PASS}`, {
-    dialect: "mysql",
-    host: "localhost"
-});
+module.exports = (sequelize, Sequelize) => {
+  const User = sequelize.define("user", {
+    username: {
+      type: Sequelize.STRING(20),
+      allowNull: false
+    },
+    email: {
+      type: Sequelize.STRING(191),
+      allowNull: false,
+      unique : 'uniqueIndex'
+    },
+    mail_visible: {
+      type: Sequelize.INTEGER(1),
+      allowNull: false,
+      defaultValue: 1
+    },
+    password: {
+      type: Sequelize.STRING(50),
+      allowNull: false
+    },
+    biography : Sequelize.TEXT,
+    image: Sequelize.STRING(191),
+    sex: {
+      type: Sequelize.STRING(1),
+      allowNull: false
+    },
+    date: {
+      type: Sequelize.DATE,
+      defaultValue: Sequelize.NOW
+    }
+  }, {
+    timestamps: false
+  });
 
-const User = sequelize.define("user", {
-  Username: {
-  	type: DataTypes.STRING,
-  	allowNull: false
-  },
-  Email: {
-  	type: DataTypes.STRING,
-  	allowNull: false,
-  	unique: 'true'
-  },
-  Passeword: {
-  	type: DataTypes.STRING,
-  	allowNull: false
-  },
-  Biography: {
-  	type: DataTypes.TEXT,
-  	allowNull: true
-  },
-  Mail_visible: {
-  	type: DataTypes.INTEGER,
-  	allowNull: false,
-  	defaultValue: 1
-  },
-  role_id: {
-  	type: DataTypes.INTEGER,
-  	allowNull: true,
-  	defaultValue: 1
-  },
-  Image: {
-  	type: DataTypes.STRING,
-  	allowNull: true
-  },
-  Date: {
-  	type: DataTypes.DATE,
-  	defaultValue: Sequelize.NOW
-  },
-  Sex: {
-  	type: DataTypes.INTEGER,
-  	allowNull: false
-  }
-}, {
-  tableName: 'User'
-});
-
-(async () => {
-  await sequelize.sync();
-  console.log("Model créé pour USER")
-})();
+  return User;
+};

@@ -5,6 +5,6 @@ const limiter = require('../middleware/limiter');
 
 const userCtrl = require('../controllers/user');
 
-router.post('/signup', limiter, userCtrl.signup);
+router.post('/signup', /*limiter,*/ userCtrl.signup);
 
 module.exports = router;
