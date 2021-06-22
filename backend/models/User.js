@@ -15,7 +15,7 @@ module.exports = (sequelize, Sequelize) => {
       defaultValue: 1
     },
     password: {
-      type: Sequelize.STRING(50),
+      type: Sequelize.STRING(100),
       allowNull: false
     },
     biography : Sequelize.TEXT,
