@@ -23,8 +23,6 @@ exports.signup = (req, res, next) => {
     res.status(401).json({message:"Sécurité du mot de passe faible. Il doit contenir au moins 8 caractère, des majuscules et deux chiffres"})
   }
 
-  console.log(req.body)
-
   bcrypt.hash(req.body.password, 10)
     .then(hash => {
       const user = {
@@ -35,18 +33,16 @@ exports.signup = (req, res, next) => {
         role_id : 1
       };
 
-      console.log(user)
-
       User.create(user)
         .then(data => {
           res.status(201).json({ message: 'Utilisateur créé !' })
         })
-        .catch(err => {
-          res.status(500).send({
-            message:
-              err.message || "Some error occurred while creating the Tutorial."
-          });
-        });
+        .catch(error => res.status(500).json({ error }));
     })
     .catch(error => res.status(500).json({ error }));
 };
+
+/*exports.login = (req, res, next) => {
+  const id = req.params.id;
+  console.log(req)
+};*/

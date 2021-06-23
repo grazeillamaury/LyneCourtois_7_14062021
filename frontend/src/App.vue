@@ -1,32 +1,48 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
-  </div>
+	<div id="app">
+		<Header/>
+		<router-view/>
+		<Footer/>
+	</div>
 </template>
 
 <style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+*{
+  margin: 0;
+  padding: 0;
 }
 
-#nav {
-  padding: 30px;
+body{
+    font-family: arial;
+	background-color: #02070d;
+    font-size: 15px;
+}
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
+p{
+    font-size: 20px;
+    color: #fd2d01;
+}
 
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
+h1{
+	color:#ffffff;
+    margin-top: 60px;
+    margin-bottom: 70px;
+}
+
+h3{
+   color:#122542;
+   font-size:20px;
 }
 </style>
+
+<script>
+import Header from "./components/Header"
+import Footer from "./components/Footer"
+export default {
+	name: "Login",
+	components: {
+		Header,
+		Footer,
+	}
+}
+</script>
