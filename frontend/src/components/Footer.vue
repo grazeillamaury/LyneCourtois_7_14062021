@@ -16,5 +16,7 @@
 </script>
 
 <style scoped lang="scss">
-
+footer{
+	margin-left: 2%;
+}
 </style>

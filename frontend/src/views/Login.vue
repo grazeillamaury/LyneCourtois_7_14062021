@@ -19,7 +19,7 @@
 
 			<br>
 
-			<label for="passeword">Mot-de-passe</label>
+			<label for="password">Mot-de-passe</label>
 			<br>
 			<input type="password" id="password" name="passeword" placeholder="Tapez votre mot de passe" required>
 
@@ -33,10 +33,6 @@
 <style scoped lang="scss">
 main{
     margin: 30px;
-}
-
-#genre{
-    width: 10%;
 }
 
 label{
@@ -70,19 +66,6 @@ input{
         margin-bottom: 90px;
         width: 100%;
         height: 55px;
-    }
-    
-    #genre{
-        width: 5%;
-        margin: 50px;
-    }
-
-    .btn {
-        margin: auto;
-        margin-top: 100px;
-        margin-bottom: 80px;
-        width: 250px;
-        font-size: 25px;
     }
 
 }
