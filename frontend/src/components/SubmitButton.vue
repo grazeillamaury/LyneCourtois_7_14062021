@@ -5,7 +5,7 @@ export default {
 </script>
 
 <template>
-	<input class="btn" type="submit" value="">
+	<input class="btn" v-on="$listeners" type="button" value="">
 </template>
 
 <style scoped lang="scss">

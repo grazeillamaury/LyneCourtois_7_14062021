@@ -20,7 +20,7 @@ exports.signup = (req, res, next) => {
   db.roles.create({ name : "employé" })
 
   if (!schemaPassValid.validate(req.body.password)) {
-    res.status(401).json({message:"Sécurité du mot de passe faible. Il doit contenir au moins 8 caractère, des majuscules et deux chiffres"})
+    return res.status(401).json({ error: 'Sécurité du mot de passe faible. Il doit contenir au moins 8 caractère, des majuscules et deux chiffres' })
   }
 
   bcrypt.hash(req.body.password, 10)
