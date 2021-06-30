@@ -37,6 +37,7 @@ export default new Vuex.Store({
 
 			let username_valid = lettersRg.test(context.state.username)
 			let email_valid = emailRg.test(context.state.email)
+
 			if (context.state.passwordone === context.state.passwordtwo) {
 				let password_valid = true
 				let password = context.state.passwordone
@@ -50,6 +51,15 @@ export default new Vuex.Store({
 					})
 					.then(response => {
 						console.log(response);
+						sessionStorage.removeItem('user');
+
+						let user = {
+							email : context.state.email,
+							password : password
+						}
+
+						let userItems = JSON.stringify(user)
+						sessionStorage.setItem('user', userItems)
 						window.location.href = 'http://localhost:8080/#/Login';
 					})
 					.catch(error => {
@@ -64,6 +74,37 @@ export default new Vuex.Store({
 			else {
 				alert("Les mots de passe ne sont pas identiques")
 			}
+		},
+		userPostLogin(context){
+			let emailRg = context.state.emailRg
+			let password = context.state.passwordone
+
+			let email_valid = emailRg.test(context.state.email)
+
+			if (email_valid) {
+                axios.post('http://localhost:3000/api/auth/login', {
+                    password: password,
+                    email: context.state.email,
+                })
+                .then(response => {
+                    sessionStorage.removeItem('user');
+
+                    let user = {
+                        id : response.data.userId,
+                        token : response.data.token
+                    }
+
+                    let userItems = JSON.stringify(user)
+                    sessionStorage.setItem('userToken', userItems)
+                    window.location.href = 'http://localhost:8080/#/'
+                })
+                .catch(error => {
+                    alert(`Le mot de passe ou l'utilisateur n'est pas valide. ${error}`)
+                });
+            }
+            else {
+                alert("Le formulaire n'est pas valide. Vérifer que l'adresse mail est valide")
+            }
 		}
 	},
 	modules: {

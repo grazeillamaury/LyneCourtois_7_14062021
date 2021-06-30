@@ -44,34 +44,30 @@ exports.signup = (req, res, next) => {
 };
 
 exports.login = (req, res) => {
-  User.create(user)
-    .then(data => {
-      let loginEmail = xss(req.body.email)
-      let loginPassword = xss(req.body.password)
+  let loginEmail = xss(req.body.email)
+  let loginPassword = req.body.password
 
-      User.findAll({ where: { email: loginEmail } })
-        .then(user => {
-          if (!user) {
-            return res.status(401).json({ error: 'Utilisateur non trouvé !' });
+  User.findAll({ where: { email: loginEmail } })
+    .then(user => {
+      if (!user) {
+        return res.status(401).json({ error: 'Utilisateur non trouvé !' });
+      }
+
+      bcrypt.compare(loginPassword, user[0].password)
+        .then(valid => {
+          if (!valid) {
+            return res.status(401).json({ error: 'Mot de passe incorrect !' });
           }
-
-          bcrypt.compare(loginPassword, user[0].password)
-            .then(valid => {
-              if (!valid) {
-                return res.status(401).json({ error: 'Mot de passe incorrect !' });
-              }
-              res.status(200).json({
-                userId: user[0].id,
-                token: jwt.sign(
-                  { userId: user._id },
-                  'RANDOM_TOKEN_SECRET',
-                  { expiresIn: '24h' }
-                )
-              });
-            })
-            .catch(error => res.status(500).json({ error }));
+          res.status(200).json({
+            userId: user[0].id,
+            token: jwt.sign(
+              { userId: user._id },
+              'RANDOM_TOKEN_SECRET',
+              { expiresIn: '24h' }
+            )
+          });
         })
         .catch(error => res.status(500).json({ error }));
-      })
+    })
     .catch(error => res.status(500).json({ error }));
 };
