@@ -20,6 +20,11 @@ export default {
 </template>
 
 <style scoped lang="scss">
+p{
+    font-size: 20px;
+    color: #fd2d01;
+}
+
 header{
     background-color: #122542;
 }

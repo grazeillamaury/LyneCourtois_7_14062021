@@ -60,7 +60,7 @@ export default new Vuex.Store({
 
 						let userItems = JSON.stringify(user)
 						sessionStorage.setItem('user', userItems)
-						window.location.href = 'http://localhost:8080/#/Login';
+						window.location.href = 'http://localhost:8080/Login';
 					})
 					.catch(error => {
 						console.log(error);
@@ -96,7 +96,7 @@ export default new Vuex.Store({
 
                     let userItems = JSON.stringify(user)
                     sessionStorage.setItem('userToken', userItems)
-                    window.location.href = 'http://localhost:8080/#/'
+                    window.location.href = 'http://localhost:8080'
                 })
                 .catch(error => {
                     alert(`Le mot de passe ou l'utilisateur n'est pas valide. ${error}`)

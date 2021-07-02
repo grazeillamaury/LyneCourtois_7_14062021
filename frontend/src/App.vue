@@ -1,8 +1,14 @@
 <template>
 	<div id="app">
-		<Header/>
-		<router-view/>
-		<Footer/>
+		<div v-if="!connected">
+			<Header/>
+			<router-view/>
+			<Footer/>
+		</div>
+
+		<Navigation v-else>
+			<router-view/>
+		</Navigation>
 	</div>
 </template>
 
@@ -13,36 +19,45 @@
 }
 
 body{
-    font-family: arial;
-	background-color: #02070d;
-    font-size: 15px;
+	font-family: arial;
+	background-color:#02070d;
+	font-size: 15px;
 }
 
 p{
-    font-size: 20px;
-    color: #fd2d01;
+	color: white;
 }
 
-h1{
-	color:#ffffff;
-    margin-top: 60px;
-    margin-bottom: 70px;
-}
-
-h3{
-   color:#122542;
-   font-size:20px;
-}
 </style>
 
 <script>
 import Header from "./components/Header"
 import Footer from "./components/Footer"
+import Navigation from "./components/Navigation"
+
 export default {
 	name: "Login",
+	data (){
+		return {
+			connected : false
+		}
+	},
 	components: {
 		Header,
 		Footer,
+		Navigation
+	},
+	beforeMount(){
+		const userStorage = JSON.parse(sessionStorage.getItem('userToken'))
+		console.log(userStorage)
+		if (userStorage != null) {
+			console.log(true)
+			this.connected = true
+		}
+		else{
+			console.log(false)
+			this.connected = false
+		}
 	}
 }
 </script>

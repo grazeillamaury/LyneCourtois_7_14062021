@@ -59,7 +59,7 @@
 
                         let userItems = JSON.stringify(user)
                         sessionStorage.setItem('userToken', userItems)
-                        window.location.href = 'http://localhost:8080/#/'
+                        window.location.href = 'http://localhost:8080'
                     })
                     .catch(error => {
                         alert(`Le mot de passe ou l'utilisateur n'est pas valide. ${error}`)
@@ -69,6 +69,9 @@
                     alert("Le formulaire n'est pas valide. Vérifer que l'adresse mail est valide")
                 }
             }
+        },
+        mounted(){
+            document.title = 'Login'
         }
     }
 </script>
@@ -97,6 +100,12 @@
 <style scoped lang="scss">
 main{
     margin: 30px;
+}
+
+h1{
+    color:#ffffff;
+    margin-top: 60px;
+    margin-bottom: 70px;
 }
 
 label{

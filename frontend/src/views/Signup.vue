@@ -57,6 +57,9 @@
                 this.$store.commit("USER_WOMAN")
             },
             ...mapActions(['userPostSignup']),
+        },
+        mounted(){
+            document.title = 'Inscription'
         }
     }
 </script>
@@ -91,6 +94,12 @@
 <style scoped lang="scss">
 main{
     margin: 30px;
+}
+
+h1{
+    color:#ffffff;
+    margin-top: 60px;
+    margin-bottom: 70px;
 }
 
 #genre{
