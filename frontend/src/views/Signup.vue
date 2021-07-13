@@ -11,41 +11,41 @@
             username:{
                 // getter
                 get: function () {
-                    return this.$store.state.username;
+                    return this.$store.state.login_signup.username;
                 },
                 // setter
                 set: function (newValue) {
-                    this.$store.state.username = newValue;
+                    this.$store.state.login_signup.username = newValue;
                 }
             },
             passwordone:{
                 // getter
                 get: function () {
-                    return this.$store.state.passwordone;
+                    return this.$store.state.login_signup.passwordone;
                 },
                 // setter
                 set: function (newValue) {
-                    this.$store.state.passwordone = newValue;
+                    this.$store.state.login_signup.passwordone = newValue;
                 }
             },
             passwordtwo:{
                 // getter
                 get: function () {
-                    return this.$store.state.passwordtwo;
+                    return this.$store.state.login_signup.passwordtwo;
                 },
                 // setter
                 set: function (newValue) {
-                    this.$store.state.passwordtwo = newValue;
+                    this.$store.state.login_signup.passwordtwo = newValue;
                 }
             },
             email:{
                 // getter
                 get: function () {
-                    return this.$store.state.email;
+                    return this.$store.state.login_signup.email;
                 },
                 // setter
                 set: function (newValue) {
-                    this.$store.state.email = newValue;
+                    this.$store.state.login_signup.email = newValue;
                 }
             }
         },
@@ -60,6 +60,12 @@
         },
         mounted(){
             document.title = 'Inscription'
+        },
+        beforeCreate(){
+            const userStorage = JSON.parse(sessionStorage.getItem('userToken'))
+            if (userStorage != null) {
+                window.location.href = 'http://localhost:8080/Activity';
+            }
         }
     }
 </script>

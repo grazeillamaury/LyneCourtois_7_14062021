@@ -6,6 +6,7 @@ const postRoutes = require('./routes/post');
 
 const db = require("./models");
 db.sequelize.sync({ force: true }).then(() => {
+  db.roles.create({ name : "employé" })
   console.log("Drop and re-sync db.");
 });
 

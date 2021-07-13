@@ -18,8 +18,6 @@ schemaPassValid
 .is().not().oneOf(['Passw0rd', 'Password123']);
 
 exports.signup = (req, res, next) => {
-  Role.create({ name : "employé" })
-
   if (!schemaPassValid.validate(req.body.password)) {
     return res.status(401).json({ error: 'Sécurité du mot de passe faible. Il doit contenir au moins 8 caractère, des majuscules et deux chiffres' })
   }
@@ -60,6 +58,8 @@ exports.login = (req, res) => {
           }
           res.status(200).json({
             userId: user[0].id,
+            roleId: user[0].roleId,
+            sex: user[0].sex,
             token: jwt.sign(
               { userId: user._id },
               'RANDOM_TOKEN_SECRET',

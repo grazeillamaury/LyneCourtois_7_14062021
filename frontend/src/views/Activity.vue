@@ -1,0 +1,338 @@
+<script>
+    export default {
+        name: "Login",
+        data(){
+            return{
+                sex : "",
+            }
+        },
+        mounted(){
+            document.title = 'Activité'
+        },
+        beforeCreate(){
+            const axios = require('axios')
+            const userStorage = JSON.parse(sessionStorage.getItem('userToken'))
+            if (userStorage === null) {
+                window.location.href = 'http://localhost:8080';
+            }
+            axios.get('http://localhost:3000/api/post', {
+                headers: {
+                    authorization: userStorage.token
+                }
+            })
+            .then(response => {
+                console.log(response);
+            })
+            .catch(error => {
+                console.log(error);
+                alert(`Quelque chose c'est mal passé. Essayez à nouveau et vérifiez que la sécurité du mot de passe ne soit pas faible. ${error}`)
+            });
+        },
+        beforeMount(){
+            let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
+            this.sex = userStorage.sex
+        }
+    }
+</script>
+
+<template>
+    <section>
+        <form class="post">
+            <div class="line1">
+                <router-link to="/User/" v-if="sex === 'M'"><img src="../assets/user_male.svg" title="Tableau de bord"></router-link>
+                <router-link to="/User/" v-else><img src="../assets/user_female.svg" title="Tableau de bord"></router-link>
+                <textarea name="post" placeholder="Écrivez quelque chose ici ..." rows="1"></textarea>
+            </div>
+            <br>
+
+            <div class="line2">
+                <div>
+                    <label for="myfile"><i class="fas fa-photo-video"></i> Photo / Vidéo</label>
+                    <br>
+                    <input type="file" id="myfile" name="myfile">
+                </div>
+                <button class="btn" type="submit"> Publier</button>
+            </div>
+        </form>
+
+        <div class="post">
+            <div class="line1">
+                <div class="user">
+                    <img src="../assets/user_male.svg">
+                    <div>
+                        <h2>John Doe</h2>
+                        <p>10 Juin</p>
+                    </div>
+                </div>
+                <div>
+                    <i class="fas fa-edit" title="Modifier"></i>
+                    <i class="fas fa-trash" title="Supprimer"></i>
+                </div>
+            </div>
+            <div class="text">
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            </div>
+            <div class="like">
+                <p><i class="fas fa-comments" title="Commenter"></i>2</p>
+                <p><i class="fas fa-share" title="Partager"></i>8</p>
+            </div>
+            <div class="comments">
+                <div class="comment">
+                    <div class="user_comment">
+                        <img src="../assets/user_male.svg">
+                        <div>
+                            <h2>John Doe</h2>
+                            <p>10 Juin</p>
+                        </div>
+                    </div>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                </div>
+                <div class="comment">
+                    <div class="user_comment">
+                        <img src="../assets/user_male.svg">
+                        <div>
+                            <h2>John Doe</h2>
+                            <p>10 Juin</p>
+                        </div>
+                    </div>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                </div>
+                <form class="form_comment">
+                    <div class="line1">
+                        <router-link to="/User/" v-if="sex === 'M'"><img src="../assets/user_male.svg" title="Tableau de bord"></router-link>
+                        <router-link to="/User/" v-else><img src="../assets/user_female.svg" title="Tableau de bord"></router-link>
+                        <textarea name="post" placeholder="Écrivez quelque chose ici ..." rows="1"></textarea>
+                    </div>
+                    <br>
+                    <button class="btn" type="submit"> Envoyer</button>
+                </form>
+            </div>
+        </div>
+    </section>
+</template>
+
+<style scoped lang="scss">
+h2{
+    color: #fd2d01;
+    font-size: 1.5em;
+    font-weight: 100;
+}
+
+.post{
+    background-color: #122542;
+    margin-bottom: 40px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: 30px;
+    margin-left: 4%;
+    margin-right: 4%;
+}
+
+.line1{
+    display: flex;
+    justify-content: space-between;
+    img{
+        width: 40px;
+        height: 40px;
+        background-color: #ffd7d7;
+        padding: 2px;
+        border-radius: 100px;
+        border: 2px #d1515a solid;
+    }
+}
+
+textarea{
+    color: #ffd7d7;
+    background-color: rgba(2, 7, 13, 0.5);
+    border: 2px #fd2d01 solid;
+    border-radius: 40px;
+    margin-left: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+    padding-bottom: 5px;
+    width: 100%;
+    font-size: 1.2em;
+    font-family: Arial;
+}
+
+.line2{
+    display: flex;
+    justify-content: space-between;
+    label{
+        display: flex;
+        align-items: center;
+        font-size: 1.1em;
+        color: #fd2d01;
+        i{
+            margin-right: 10px;
+            color: #d1515a;
+            font-size: 30px;
+        }
+    }
+}
+
+.btn{
+    width: 150px;
+    height: 40px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #d1515a;
+    border-radius: 37px;
+    border:none;
+    box-shadow: -4px 4px 10px black;
+    margin-bottom: 2px;
+    &:hover{
+        margin-bottom: 0px;
+        margin-top: 2px;
+        color: #d1515a;
+        margin-top: 2px;
+        background-color: #ffd7d7;
+        border-radius: 37px;
+        border:none;
+        box-shadow: none;
+    }
+}
+
+.user{
+    display: flex;
+    width: 60%;
+    padding-bottom: 10px;
+    border-bottom: 3px #d1515a solid;
+    div{
+        padding-left: 10px;
+        padding-top: 2%;
+    }
+    p{
+        color: #ffd7d7;
+        font-size: 1em;
+        padding-top: 5%; 
+    }
+}
+
+.comments{
+    border: 4px #d1515a solid;
+    border-radius: 10px;
+    margin-top: 10px;
+    padding: 1% 2%;
+    p{
+        font-size: 1.05em;
+        width: 80%;
+    }
+}
+
+.comment{
+    display: flex;
+    padding-bottom: 2%;
+    margin-bottom: 3%;
+    border-bottom: 2px #ffd7d7 solid;
+
+}
+
+.user_comment{
+    display: flex;
+    width: 15%;
+    margin-right: 1%;
+    padding-bottom: 10px;
+    border-bottom: 3px #d1515a solid;
+    img{
+        width: 40px;
+        height: 40px;
+        background-color: #ffd7d7;
+        padding: 2px;
+        border-radius: 100px;
+        border: 2px #d1515a solid;
+    }
+    div{
+        padding-left: 10px;
+        padding-top: 2%;
+    }
+    p{
+        color: #ffd7d7;
+        font-size: 1em;
+        padding-top: 5%; 
+    }
+}
+
+.fa-edit, .fa-trash{
+    margin-right: 20px;
+    font-size: 2.5em;
+    color: #d1515a;
+    &:hover{
+        color: #ffd7d7;
+    }
+}
+
+.text{
+    padding-top: 2%;
+    padding-bottom: 2%;
+    color: white;
+    font-size: 1.1em;
+    line-height: 1.5em;
+    letter-spacing: 0.02em;
+    border-bottom: 2px rgba(255, 255, 255, 0.1) solid;
+}
+
+.like{
+    padding: 10px;
+    width: 16%;
+    display: flex;
+    justify-content: space-between;
+    p{
+        font-size: 1.7em;
+        color: #fd2d01;
+        display: flex;
+        align-items: center;
+    }
+    .fas{
+        color: #d1515a;
+        font-size: 1.5em;
+        padding-right: 10px;
+        &:hover{
+            color: #ffd7d7;
+        }
+    }
+}
+
+form a {
+    cursor: pointer;
+}
+
+@media screen and (min-width:1024px){
+    .post{
+        margin-right: 20%;
+        margin-left: 20%;
+    }
+
+    .line1 img{
+        width: 60px;
+        height: 60px;
+    }
+
+    .line2 label{
+        font-size: 1.5em;
+        i{
+            font-size: 40px;
+        }   
+    }
+
+    textarea{
+    border-radius: 40px;
+    margin-left: 10px;
+    padding-left: 30px;
+    padding-right: 20px;
+    padding-top: 20px;
+    padding-bottom: 15px;
+    font-size: 1.5em;
+    }
+
+    .btn{
+        width: 230px;
+        height: 50px;
+        font-size: 1.5em;
+    }
+}
+</style>

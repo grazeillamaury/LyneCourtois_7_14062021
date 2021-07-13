@@ -7,11 +7,13 @@ Vue.use(Vuex)
 export default new Vuex.Store({
 	state: {
 		webSiteName :'Groupomania',
-		username : "",
-		passwordone : "",
-		passwordtwo : "",
-		sex : "",
-		email : "",
+		login_signup:{
+			username : "",
+			passwordone : "",
+			passwordtwo : "",
+			sex : "",
+			email : ""
+		},
 		lettersRg : /^[-'a-zA-ZÀ-ÖØ-öø-ÿ\s]+$/,
 		emailRg : /^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,4}$/
 	},
@@ -24,10 +26,10 @@ export default new Vuex.Store({
 	},
 	mutations: {
 		USER_MAN (state){
-			state.sex = "M"
+			state.login_signup.sex = "M"
 		},
 		USER_WOMAN (state){
-			state.sex = "F"
+			state.login_signup.sex = "F"
 		}
 	},
 	actions: {
@@ -35,26 +37,26 @@ export default new Vuex.Store({
 			let lettersRg = context.state.lettersRg
 			let emailRg = context.state.emailRg
 
-			let username_valid = lettersRg.test(context.state.username)
-			let email_valid = emailRg.test(context.state.email)
+			let username_valid = lettersRg.test(context.state.login_signup.username)
+			let email_valid = emailRg.test(context.state.login_signup.email)
 
-			if (context.state.passwordone === context.state.passwordtwo) {
+			if (context.state.login_signup.passwordone === context.state.login_signup.passwordtwo) {
 				let password_valid = true
-				let password = context.state.passwordone
+				let password = context.state.login_signup.passwordone
 
 				if (username_valid && email_valid && password_valid) {
 					axios.post('http://localhost:3000/api/auth/signup', {
-						username: context.state.username,
+						username: context.state.login_signup.username,
 						password: password,
-						email: context.state.email,
-						sex : context.state.sex
+						email: context.state.login_signup.email,
+						sex : context.state.login_signup.sex
 					})
 					.then(response => {
 						console.log(response);
 						sessionStorage.removeItem('user');
 
 						let user = {
-							email : context.state.email,
+							email : context.state.login_signup.email,
 							password : password
 						}
 
@@ -77,26 +79,28 @@ export default new Vuex.Store({
 		},
 		userPostLogin(context){
 			let emailRg = context.state.emailRg
-			let password = context.state.passwordone
+			let password = context.state.login_signup.passwordone
 
-			let email_valid = emailRg.test(context.state.email)
+			let email_valid = emailRg.test(context.state.login_signup.email)
 
 			if (email_valid) {
                 axios.post('http://localhost:3000/api/auth/login', {
                     password: password,
-                    email: context.state.email,
+                    email: context.state.login_signup.email,
                 })
                 .then(response => {
                     sessionStorage.removeItem('user');
 
                     let user = {
                         id : response.data.userId,
+                        roleId : response.data.roleId,
+                        sex: response.data.sex,
                         token : response.data.token
                     }
 
                     let userItems = JSON.stringify(user)
                     sessionStorage.setItem('userToken', userItems)
-                    window.location.href = 'http://localhost:8080'
+                    window.location.href = 'http://localhost:8080/Activity'
                 })
                 .catch(error => {
                     alert(`Le mot de passe ou l'utilisateur n'est pas valide. ${error}`)
@@ -105,6 +109,10 @@ export default new Vuex.Store({
             else {
                 alert("Le formulaire n'est pas valide. Vérifer que l'adresse mail est valide")
             }
+		},
+		userSignout(){
+			sessionStorage.removeItem('userToken');
+			window.location.href = 'http://localhost:8080/'
 		}
 	},
 	modules: {

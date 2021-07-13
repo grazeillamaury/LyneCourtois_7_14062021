@@ -7,27 +7,26 @@
         name: "Login",
         components: {
             SubmitButton
-
         },
         computed : {
             password:{
                 // getter
                 get: function () {
-                    return this.$store.state.passwordone;
+                    return this.$store.state.login_signup.passwordone;
                 },
                 // setter
                 set: function (newValue) {
-                    this.$store.state.passwordone = newValue;
+                    this.$store.state.login_signup.passwordone = newValue;
                 }
             },
             email:{
                 // getter
                 get: function () {
-                    return this.$store.state.email;
+                    return this.$store.state.login_signup.email;
                 },
                 // setter
                 set: function (newValue) {
-                    this.$store.state.email = newValue;
+                    this.$store.state.login_signup.email = newValue;
                 }
             },
             ...mapState({
@@ -38,7 +37,12 @@
             ...mapActions(['userPostLogin']),
         },
         beforeCreate(){
-            const userStorage = JSON.parse(sessionStorage.getItem('user'))
+            let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
+            if (userStorage != null) {
+                window.location.href = 'http://localhost:8080/Activity';
+            }
+
+            userStorage = JSON.parse(sessionStorage.getItem('user'))
             let emailRg = /^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,4}$/
 
             if (userStorage != null) {
@@ -54,12 +58,14 @@
 
                         let user = {
                             id : response.data.userId,
+                            roleId : response.data.roleId,
+                            sex: response.data.sex,
                             token : response.data.token
                         }
 
                         let userItems = JSON.stringify(user)
                         sessionStorage.setItem('userToken', userItems)
-                        window.location.href = 'http://localhost:8080'
+                        window.location.href = 'http://localhost:8080/Activity'
                     })
                     .catch(error => {
                         alert(`Le mot de passe ou l'utilisateur n'est pas valide. ${error}`)

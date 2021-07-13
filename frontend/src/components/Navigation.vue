@@ -2,25 +2,38 @@
 	<div>
 		<nav>
 			<div>
-				<img src="../assets/user_male.svg">
-				<i class="fas fa-sign-out-alt"></i>
-				<i class="fas fa-tools"></i>
+				<router-link to="/User/" v-if="sex === 'M'"><img src="../assets/user_male.svg" title="Tableau de bord"></router-link>
+				<router-link to="/User/" v-else><img src="../assets/user_female.svg" title="Tableau de bord"></router-link>
+				<i class="fas fa-sign-out-alt" title="Déconnexion" @click="userSignout"></i>
+                <router-link to="/Param"><i class="fas fa-tools" title="Paramètres"></i></router-link>
 			</div>
-			<i class="fas fa-globe"></i>
+			<router-link to="/Activity"><i class="fas fa-globe" title="Activité"></i></router-link>
 		</nav>
 		<main>
 			<div id="bande">
 				<img src="../assets/icon-left-font.svg">
 			</div>
-			<slot><p>bonjour</p></slot>
+			<slot><p>Bonjour</p></slot>
 		</main>
 	</div>
 </template>
 
 <script>
-
+	import { mapActions } from "vuex"
 	export default {
 		name: 'Navigation',
+		data(){
+			return{
+				sex : "",
+			}
+		},
+		methods : {
+			...mapActions(['userSignout']),
+		},
+		beforeMount(){
+			let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
+			this.sex = userStorage.sex
+		}
 	}
 </script>
 
@@ -64,16 +77,18 @@ nav{
 			padding: 2px;
 			border-radius: 100px;
 			border: 2px #d1515a solid;
+			cursor: pointer;
 			&:hover{
 				border: 2px #ffd7d7 solid;
 			}
 		}
-		.fas{
-			font-size: 1.5em;
-			color: #ffd7d7;
-			&:hover{
-				color: #02070d;
-			}
+	}
+	i{
+		font-size: 1.5em;
+		color: #ffd7d7;
+		cursor: pointer;
+		&:hover{
+			color: #02070d;
 		}
     }
 }

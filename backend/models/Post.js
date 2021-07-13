@@ -7,15 +7,6 @@ module.exports = (sequelize, Sequelize) => {
     image: {
       type: Sequelize.STRING(191)
     },
-    liked: {
-      type: Sequelize.TEXT,
-      defaultValue: 0
-    },
-    pinned: {
-      type: Sequelize.INTEGER(1),
-      allowNull: false,
-      defaultValue: 0
-    },
     date: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.NOW
