@@ -1,7 +1,7 @@
 <script>
     const axios = require('axios')
     import SubmitButton from "../components/SubmitButton.vue"
-    import { mapState, mapActions } from "vuex"
+    import { mapActions } from "vuex"
 
     export default {
         name: "Login",
@@ -28,10 +28,7 @@
                 set: function (newValue) {
                     this.$store.state.login_signup.email = newValue;
                 }
-            },
-            ...mapState({
-                emailRg:'emailRg',
-            })
+            }
         },
         methods : {
             ...mapActions(['userPostLogin']),

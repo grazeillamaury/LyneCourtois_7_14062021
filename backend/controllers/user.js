@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 const xss = require('xss');
 const db = require("../models")
 const User = db.users
-const Role = db.roles
 
 const schemaPassValid = new passwordValidator();
 
