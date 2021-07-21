@@ -120,11 +120,10 @@ nav{
 	nav{
 		flex-direction: column;
 		width: 5%;
-		height: 875px;
+		height: 100%;
 		position: fixed;
 		padding: 0.7%;
 		border-right: 3px #122542 solid;
-		background-color: #02070d;
 		div{
 			flex-direction: column;
 			width: 65%;

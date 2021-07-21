@@ -1,4 +1,8 @@
 const axios = require('axios')
+const moment = require('moment');
+moment().format();
+moment.locale('fr');
+
 import Vue from 'vue'
 import Vuex from 'vuex'
 
@@ -17,7 +21,7 @@ export default new Vuex.Store({
 		imagePost : "",
 		postText : "",
 		lettersRg : /^[-'a-zA-ZÀ-ÖØ-öø-ÿ\s]+$/,
-		postsRg : /^[-'a-zA-Z0-9À-ÖØ-öø-ÿ\s#!^$()?+*.:|]+$/,
+		postsRg : /^[-'a-zA-Z0-9À-ÖØ-öø-ÿ\s#!^$()?+*.:,|]+$/,
 		emailRg : /^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,4}$/
 	},
 	getters:{
@@ -33,7 +37,7 @@ export default new Vuex.Store({
 		},
 		USER_WOMAN (state){
 			state.login_signup.sex = "F"
-		}
+		},
 	},
 	actions: {
 		userPostSignup(context){
@@ -122,9 +126,6 @@ export default new Vuex.Store({
 			let image = context.state.imagePost
 			let content = context.state.postText
 			let content_valid = rg.test(content)
-			console.log(content)
-			console.log(content_valid)
-			console.log(image)
 
 			if (content_valid) {
 				let formData = new FormData()
@@ -134,6 +135,7 @@ export default new Vuex.Store({
 					text : content,
 					userid : userStorage.id
 				}
+
 				formData.append('content', JSON.stringify(post));
 				if (image) {
 					formData.append('image', image);
@@ -147,6 +149,7 @@ export default new Vuex.Store({
 				})
 				.then(response => {
 					console.log(response);
+					window.location.reload();
 				})
 				.catch(error => {
 					alert(`Quelque chose c'est mal passé.${error}`)

@@ -22,3 +22,17 @@ exports.createPost = (req, res, next) => {
     })
     .catch(error => res.status(500).json({ error }));
 };
+
+exports.getAllPost = (req, res, next) => {
+  Post.findAll({include: ["user"], order: [['date', 'DESC']] }, { limit: 20 }).
+  then((posts) => {
+    res.status(200).json(posts);
+  })
+  .catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+    }
+  );
+};

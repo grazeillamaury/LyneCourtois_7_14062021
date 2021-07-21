@@ -5,8 +5,10 @@
         name: "Login",
         data(){
             return{
+                role:"",
                 sex : "",
-                image : ""
+                image : "",
+                posts : ""
             }
         },
         components: {
@@ -28,32 +30,41 @@
             ...mapActions(['postPostCreate']),
             addImage(event) {
                 this.$store.state.imagePost = event.target.files[0]
-                console.log(this.$store.state.imagePost)
             }
-
         },
         beforeCreate(){
-            //const axios = require('axios')
             const userStorage = JSON.parse(sessionStorage.getItem('userToken'))
             if (userStorage === null) {
                 window.location.href = 'http://localhost:8080';
             }
-            /*axios.get('http://localhost:3000/api/post', {
-                headers: {
-                    authorization: userStorage.token
+        },
+        beforeMount(){
+            const axios = require('axios')
+            const moment = require('moment');
+            moment().format();
+            moment.locale('fr');
+
+            let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
+            this.sex = userStorage.sex
+            this.user_id = userStorage.id
+            this.role = userStorage.roleId
+
+            axios.get('http://localhost:3000/api/post', {
+                headers:{
+                    'Authorization' : `Token ${userStorage.token}`
                 }
             })
-            .then(response => {
-                console.log(response);
+            .then(posts => {
+                this.posts = posts.data
+
+                this.posts.forEach((post) => {
+                    post.date = moment(post.date).format('Do MMMM YYYY à HH:mm')
+                })
             })
             .catch(error => {
                 console.log(error);
-                alert(`Quelque chose c'est mal passé. Essayez à nouveau et vérifiez que la sécurité du mot de passe ne soit pas faible. ${error}`)
-            });*/
-        },
-        beforeMount(){
-            let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
-            this.sex = userStorage.sex
+                alert(`Quelque chose c'est mal passé. Essayez à nouveau ${error}`)
+            });
         },
         mounted(){
             document.title = 'Activité'
@@ -65,8 +76,8 @@
     <section>
         <form class="post">
             <div class="line1">
-                <router-link to="/User/" v-if="sex === 'M'"><img src="../assets/user_male.svg" title="Tableau de bord"></router-link>
-                <router-link to="/User/" v-else><img src="../assets/user_female.svg" title="Tableau de bord"></router-link>
+                <router-link to="/User/" v-if="sex === 'M'"><img src="../assets/user_male.svg" title="Tableau de bord" class="user_img"></router-link>
+                <router-link to="/User/" v-else><img src="../assets/user_female.svg" title="Tableau de bord" class="user_img"></router-link>
                 <textarea name="post" placeholder="Écrivez quelque chose ici ..." rows="1" v-model="postText"></textarea>
             </div>
             <br>
@@ -81,65 +92,68 @@
             </div>
         </form>
 
-
-
-
-        <div class="post">
-            <div class="line1">
-                <div class="user">
-                    <img src="../assets/user_male.svg">
+        <div id="posts">
+            <div class="post" v-for="item in posts" :key="item.id">
+                <div class="line1">
+                    <div class="user">
+                        <router-link to="/User/" v-if="item.user.sex === 'M'"><img src="../assets/user_male.svg" title="Tableau de bord" class="user_img"></router-link>
+                        <router-link to="/User/" v-else><img src="../assets/user_female.svg" title="Tableau de bord" class="user_img"></router-link>
+                        <div>
+                            <h2>{{item.user.username}}</h2>
+                            <p>{{item.date}}</p>
+                        </div>
+                    </div>
                     <div>
-                        <h2>John Doe</h2>
-                        <p>10 Juin</p>
+                        <i v-if="item.user.id === user_id" class="fas fa-edit" title="Modifier"></i>
+                        <i v-if="item.user.id === user_id" class="fas fa-trash" title="Supprimer"></i>
+                        <i v-else-if="role === 2" class="fas fa-trash" title="Supprimer"></i>
                     </div>
                 </div>
-                <div>
-                    <i class="fas fa-edit" title="Modifier"></i>
-                    <i class="fas fa-trash" title="Supprimer"></i>
+
+                <p class="text">{{item.content}}</p>
+
+                <img v-if="item.image" :src="item.image" class="post_img" alt="aucune description disponible">
+
+                <div class="share_comment">
+                    <p><i class="fas fa-comments" title="Commenter"></i>2</p>
+                    <p><i class="fas fa-share" title="Partager"></i>8</p>
                 </div>
-            </div>
-            <div class="text">
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-            </div>
-            <div class="like">
-                <p><i class="fas fa-comments" title="Commenter"></i>2</p>
-                <p><i class="fas fa-share" title="Partager"></i>8</p>
-            </div>
-            <div class="comments">
-                <div class="comment">
-                    <div class="user_comment">
-                        <div class="user_comment_info">
-                            <img src="../assets/user_male.svg">
-                            <div>
-                                <h2>John Doe</h2>
-                                <p>10 Juin</p>
+                <div class="comments">
+                    <!--<div class="comment">
+                        <div class="user_comment">
+                            <div class="user_comment_info">
+                                <img src="../assets/user_male.svg" class="user_img">
+                                <div>
+                                    <h2>John Doe</h2>
+                                    <p>10 Juin</p>
+                                </div>
                             </div>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
                         </div>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                        <a href="#">Répondre</a>
                     </div>
-                    <a href="#">Répondre</a>
-                </div>
-                <div class="comment">
-                    <div class="user_comment">
-                        <div class="user_comment_info">
-                            <img src="../assets/user_female.svg">
-                            <div>
-                                <h2>Jane Doe</h2>
-                                <p>10 Juin</p>
+                    <div class="comment">
+                        <div class="user_comment">
+                            <div class="user_comment_info">
+                                <img src="../assets/user_female.svg" class="user_img">
+                                <div>
+                                    <h2>Jane Doe</h2>
+                                    <p>10 Juin</p>
+                                </div>
                             </div>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
                         </div>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                    </div>
-                    <a href="#">Répondre</a>
+                        <a href="#">Répondre</a>
+                    </div>-->
+                    <form class="form_comment">
+                        <div class="line1">
+                            <router-link to="/User/" v-if="sex === 'M'"><img src="../assets/user_male.svg" title="Tableau de bord" class="user_img"></router-link>
+                            <router-link to="/User/" v-else><img src="../assets/user_female.svg" title="Tableau de bord" class="user_img"></router-link>
+                            <textarea name="post" placeholder="Écrivez quelque chose ici ..." rows="1"></textarea>
+                        </div>
+                        <SubmitButton class="btn-post" @click="postPostCreate" value="Publier"/>
+                    </form>
                 </div>
-                <form class="form_comment">
-                    <div class="line1">
-                        <router-link to="/User/" v-if="sex === 'M'"><img src="../assets/user_male.svg" title="Tableau de bord"></router-link>
-                        <router-link to="/User/" v-else><img src="../assets/user_female.svg" title="Tableau de bord"></router-link>
-                        <textarea name="post" placeholder="Écrivez quelque chose ici ..." rows="1"></textarea>
-                    </div>
-                    <SubmitButton class="btn-post" @click="postPostCreate" value="Publier"/>
-                </form>
             </div>
         </div>
     </section>
@@ -159,12 +173,36 @@ h2{
     border-radius: 30px;
     margin-left: 4%;
     margin-right: 4%;
+    display: flex;
+    flex-direction: column;
+    &_img{
+        margin: auto;
+        margin-top: 10px;
+        width: 50%;
+        height: auto;
+    }
 }
 
 .line1{
     display: flex;
     justify-content: space-between;
-    img{
+}
+
+.user{
+    display: flex;
+    width: 60%;
+    padding-bottom: 10px;
+    border-bottom: 3px #d1515a solid;
+    div{
+        padding-left: 10px;
+        padding-top: 2%;
+    }
+    p{
+        color: #ffd7d7;
+        font-size: 1em;
+        padding-top: 5%; 
+    }
+    &_img{
         width: 40px;
         height: 40px;
         background-color: #ffd7d7;
@@ -186,6 +224,37 @@ textarea{
     font-family: Arial;
 }
 
+.text{
+    padding-top: 2%;
+    padding-bottom: 2%;
+    color: white;
+    font-size: 1.1em;
+    line-height: 1.5em;
+    letter-spacing: 0.02em;
+    border-bottom: 2px rgba(255, 255, 255, 0.1) solid;
+}
+
+.share_comment{
+    padding: 10px;
+    width: 16%;
+    display: flex;
+    justify-content: space-between;
+    p{
+        font-size: 1.7em;
+        color: #fd2d01;
+        display: flex;
+        align-items: center;
+    }
+    .fas{
+        color: #d1515a;
+        font-size: 1.5em;
+        padding-right: 10px;
+        &:hover{
+            color: #ffd7d7;
+        }
+    }
+}
+
 .line2{
     display: flex;
     flex-wrap: wrap;
@@ -195,11 +264,11 @@ textarea{
         align-items: center;
         font-size: 1.1em;
         color: #fd2d01;
-        i{
-            margin-right: 10px;
-            color: #d1515a;
-            font-size: 30px;
-        }
+    }
+    i{
+        margin-right: 10px;
+        color: #d1515a;
+        font-size: 30px;
     }
 }
 
@@ -222,22 +291,6 @@ textarea{
         border-radius: 37px;
         border:none;
         box-shadow: none;
-    }
-}
-
-.user{
-    display: flex;
-    width: 60%;
-    padding-bottom: 10px;
-    border-bottom: 3px #d1515a solid;
-    div{
-        padding-left: 10px;
-        padding-top: 2%;
-    }
-    p{
-        color: #ffd7d7;
-        font-size: 1em;
-        padding-top: 5%; 
     }
 }
 
@@ -305,37 +358,6 @@ textarea{
     color: #d1515a;
     &:hover{
         color: #ffd7d7;
-    }
-}
-
-.text{
-    padding-top: 2%;
-    padding-bottom: 2%;
-    color: white;
-    font-size: 1.1em;
-    line-height: 1.5em;
-    letter-spacing: 0.02em;
-    border-bottom: 2px rgba(255, 255, 255, 0.1) solid;
-}
-
-.like{
-    padding: 10px;
-    width: 16%;
-    display: flex;
-    justify-content: space-between;
-    p{
-        font-size: 1.7em;
-        color: #fd2d01;
-        display: flex;
-        align-items: center;
-    }
-    .fas{
-        color: #d1515a;
-        font-size: 1.5em;
-        padding-right: 10px;
-        &:hover{
-            color: #ffd7d7;
-        }
     }
 }
 
