@@ -19,7 +19,9 @@ export default new Vuex.Store({
 			email : ""
 		},
 		imagePost : "",
+		postId : "",
 		postText : "",
+		commentText : "",
 		lettersRg : /^[-'a-zA-ZÀ-ÖØ-öø-ÿ\s]+$/,
 		postsRg : /^[-'a-zA-Z0-9À-ÖØ-öø-ÿ\s#!^$()?+*.:,|]+$/,
 		emailRg : /^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,4}$/
@@ -121,6 +123,8 @@ export default new Vuex.Store({
 			sessionStorage.removeItem('userToken');
 			window.location.href = 'http://localhost:8080/'
 		},
+
+
 		postPostCreate(context){
 			let rg = context.state.postsRg
 			let image = context.state.imagePost
@@ -157,7 +161,48 @@ export default new Vuex.Store({
 			}else {
 				console.log("Le contenu du post n'est pas valide ou est inexistant")
 			}
-		}
+		},
+
+
+		/*postCommentCreate(context){
+			let rg = context.state.postsRg
+			let content = context.state.commentText
+			let content_valid = rg.test(content)
+
+			if (content_valid) {
+				let formData = new FormData()
+				let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
+
+				let post = {
+					text : content,
+					userid : userStorage.id
+				}
+
+				formData.append('content', JSON.stringify(post));
+
+
+				axios.post('http://localhost:3000/api/comment', formData, {
+					headers:{
+						'Content-Type': 'multipart/form-data',
+						'Authorization' : `Token ${userStorage.token}`
+					},
+
+					headers:{
+						'Content-Type': 'multipart/form-data',
+						'Authorization' : `Token ${userStorage.token}`
+					}
+				})
+				.then(response => {
+					console.log(response);
+					window.location.reload();
+				})
+				.catch(error => {
+					alert(`Quelque chose c'est mal passé.${error}`)
+				})
+			}else {
+				console.log("Le contenu du post n'est pas valide ou est inexistant")
+			}
+		}*/
 	},
 	modules: {
 	}

@@ -2,6 +2,7 @@ const fs = require('fs')
 const xss = require('xss')
 const db = require("../models")
 const Post = db.posts
+const Comment = db.comments
 
 exports.createPost = (req, res, next) => {
 	const postObject = JSON.parse(req.body.content);
@@ -24,7 +25,41 @@ exports.createPost = (req, res, next) => {
 };
 
 exports.getAllPost = (req, res, next) => {
-  Post.findAll({include: ["user"], order: [['date', 'DESC']] }, { limit: 20 }).
+  Post.findAll({
+    include: [
+      { 
+        model : Comment,
+        as: 'comments',
+        include : [ "user"]
+      },
+      "user"
+    ],
+    order: [['date', 'DESC']] },
+    { limit: 50 })
+  .then((posts) => {
+    res.status(200).json(posts);
+  })
+  .catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+    }
+  );
+};
+
+exports.getOnePost = (req, res, next) => {
+  const id = req.params.id;
+
+  Post.findByPk(id, {
+    include: [ { 
+      model : Comment,
+      requierd: true,
+      as: 'comments',
+      include : [ "user"]
+    }, "user"],
+    order: [['date', 'DESC']] },
+    { limit: 20 }).
   then((posts) => {
     res.status(200).json(posts);
   })

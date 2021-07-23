@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import Login from '../views/Login.vue'
 import Signup from '../views/Signup.vue'
 import Activity from '../views/Activity.vue'
+import Post from '../views/AnswerComment.vue'
 
 Vue.use(VueRouter)
 
@@ -26,6 +27,11 @@ const routes = [
     path: '/Activity',
     name: 'Activity',
     component: Activity
+  },
+  {
+    path: '/Post/:id',
+    name: 'Post',
+    component: Post
   }
 ]
 
