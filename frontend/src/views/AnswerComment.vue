@@ -29,12 +29,16 @@
         },
         methods : {
             ...mapActions(['postCommentCreate']),
+            getPostId() {
+                this.$store.state.postId = this.$route.params.id            }
         },
         beforeCreate(){
             const userStorage = JSON.parse(sessionStorage.getItem('userToken'))
             if (userStorage === null) {
                 window.location.href = 'http://localhost:8080';
             }
+            this.$store.state.postId = 0
+            this.$store.state.commentText = ""
         },
         beforeMount(){
             const axios = require('axios')
@@ -121,7 +125,7 @@
                     <div class="line1">
                         <router-link to="/User/" v-if="sex === 'M'"><img src="../assets/user_male.svg" title="Tableau de bord" class="user_img"></router-link>
                         <router-link to="/User/" v-else><img src="../assets/user_female.svg" title="Tableau de bord" class="user_img"></router-link>
-                        <textarea name="post" placeholder="Écrivez quelque chose ici ..." rows="1" v-model="commentText"></textarea>
+                        <textarea name="post" placeholder="Écrivez quelque chose ici ..." rows="1" v-model="commentText" @change="getPostId"></textarea>
                     </div>
                     <SubmitButton class="btn-post" @click="postCommentCreate" value="Publier"/>
                 </form>

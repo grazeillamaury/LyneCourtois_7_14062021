@@ -159,34 +159,30 @@ export default new Vuex.Store({
 					alert(`Quelque chose c'est mal passé.${error}`)
 				})
 			}else {
-				console.log("Le contenu du post n'est pas valide ou est inexistant")
+				alert("Le contenu du post n'est pas valide ou est inexistant")
 			}
 		},
 
-
-		/*postCommentCreate(context){
+		postCommentCreate(context){
 			let rg = context.state.postsRg
+			let post_id = context.state.postId
 			let content = context.state.commentText
 			let content_valid = rg.test(content)
+
+			console.log(post_id)
 
 			if (content_valid) {
 				let formData = new FormData()
 				let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
 
-				let post = {
+				let comment = {
 					text : content,
 					userid : userStorage.id
 				}
 
-				formData.append('content', JSON.stringify(post));
+				formData.append('content', JSON.stringify(comment));
 
-
-				axios.post('http://localhost:3000/api/comment', formData, {
-					headers:{
-						'Content-Type': 'multipart/form-data',
-						'Authorization' : `Token ${userStorage.token}`
-					},
-
+				axios.post(`http://localhost:3000/api/comment/${post_id}`, formData, {
 					headers:{
 						'Content-Type': 'multipart/form-data',
 						'Authorization' : `Token ${userStorage.token}`
@@ -200,9 +196,9 @@ export default new Vuex.Store({
 					alert(`Quelque chose c'est mal passé.${error}`)
 				})
 			}else {
-				console.log("Le contenu du post n'est pas valide ou est inexistant")
+				alert("Le contenu du post n'est pas valide ou est inexistant")
 			}
-		}*/
+		},
 	},
 	modules: {
 	}

@@ -52,12 +52,14 @@ exports.getOnePost = (req, res, next) => {
   const id = req.params.id;
 
   Post.findByPk(id, {
-    include: [ { 
-      model : Comment,
-      requierd: true,
-      as: 'comments',
-      include : [ "user"]
-    }, "user"],
+    include: [
+      { 
+        model : Comment,
+        as: 'comments',
+        include : [ "user"]
+      },
+      "user"
+    ],
     order: [['date', 'DESC']] },
     { limit: 20 }).
   then((posts) => {
