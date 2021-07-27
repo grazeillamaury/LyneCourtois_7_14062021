@@ -9,5 +9,6 @@ const postCtrl = require('../controllers/post');
 router.post('/', auth, multer, postCtrl.createPost);
 router.get('/', /*auth,*/ postCtrl.getAllPost);
 router.get('/:id'/*, auth*/, postCtrl.getOnePost);
+router.put('/:id', auth, multer, postCtrl.modifyPost);
 
 module.exports = router;

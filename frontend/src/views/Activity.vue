@@ -111,9 +111,8 @@
                         </div>
                     </div>
                     <div>
-                        <i v-if="item.user.id === user_id" class="fas fa-edit" title="Modifier"></i>
-                        <i v-if="item.user.id === user_id" class="fas fa-trash" title="Supprimer"></i>
-                        <i v-else-if="role === 2" class="fas fa-trash" title="Supprimer"></i>
+                        <router-link :to="{name: 'Post', params: { id: item.id },}" v-if="item.user.id === user_id"><i class="fas fa-user-edit" title="Modifier ou supprimer"></i></router-link>
+                        <router-link :to="{name: 'Post', params: { id: item.id },}" v-else-if="role === 2"><i class="fas fa-user-edit" title="Modifier ou supprimer"></i></router-link>
                     </div>
                 </div>
 
@@ -341,7 +340,7 @@ textarea{
     }
 }
 
-.fa-edit, .fa-trash{
+.fa-user-edit{
     margin-left: 20px;
     font-size: 1.8em;
     color: #d1515a;

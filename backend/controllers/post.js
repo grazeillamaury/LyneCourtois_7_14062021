@@ -59,11 +59,9 @@ exports.getOnePost = (req, res, next) => {
         include : [ "user"]
       },
       "user"
-    ],
-    order: [['date', 'DESC']] },
-    { limit: 20 }).
-  then((posts) => {
-    res.status(200).json(posts);
+    ]})
+  .then((post) => {
+    res.status(200).json(post);
   })
   .catch(
     (error) => {
@@ -72,4 +70,65 @@ exports.getOnePost = (req, res, next) => {
       });
     }
   );
+};
+
+exports.modifyPost = (req, res, next) => {
+  const id = req.params.id;
+  const post = {};
+
+  if (req.body.content) {
+    const postObject = JSON.parse(req.body.content);
+    post.content = xss(postObject.text)
+  }
+
+  if (req.file) {
+    post.image = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+  }
+
+  console.log(post)
+
+  if (req.file){
+    Post.findByPk(id)
+      .then((oldpost) => {
+        if(!post.content){
+          post.content = oldpost.content
+        }
+
+        if(oldpost.image){
+          console.log("Il y a un fichier et le post de base en a un aussi")
+          const filename = oldpost.image.split('/images/')[1];
+
+          fs.unlink(`images/${filename}`, () => {
+            Post.update(post, { where: { id: id }})
+            .then(data => {
+              console.log(data)
+              res.status(201).json({ message: 'Post modifié !' })
+            })
+            .catch(error => res.status(500).json({ error }));
+          });
+        }else{
+          console.log("Il y a un fichier mais le post de base en n'a pas")
+          Post.update(post, { where: { id: id }})
+          .then(data => {
+            console.log(data)
+            res.status(201).json({ message: 'Post modifié !' })
+          })
+          .catch(error => res.status(500).json({ error }));
+        }
+      })
+      .catch(
+        (error) => {
+          res.status(400).json({
+            error: error
+          });
+        }
+      ); 
+  }else{
+    console.log("pas de ficher")
+    Post.update(post, { where: { id: id }})
+    .then(data => {
+      res.status(201).json({ message: 'Post modifié !' })
+    })
+    .catch(error => res.status(500).json({ error }));
+  }
 };

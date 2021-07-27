@@ -162,6 +162,58 @@ export default new Vuex.Store({
 				alert("Le contenu du post n'est pas valide ou est inexistant")
 			}
 		},
+		putPostEdit(context){
+			let rg = context.state.postsRg
+			let post_id = context.state.postId
+			let image = context.state.imagePost
+			let content = context.state.postText
+			let content_valid = rg.test(content)
+
+			let formData = new FormData()
+			let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
+
+			if (image) {
+				formData.append('image', image);
+			}
+
+			if(content){
+				let post = {
+					text : content
+				}
+				formData.append('content', JSON.stringify(post));
+				if (content_valid) {
+					axios.put(`http://localhost:3000/api/post/${post_id}`, formData, {
+						headers:{
+							'Content-Type': 'multipart/form-data',
+							'Authorization' : `Token ${userStorage.token}`
+						}
+					})
+					.then(response => {
+						console.log(response);
+						window.location.reload();
+					})
+					.catch(error => {
+						console.log(`Quelque chose c'est mal passé.${error}`)
+					})
+				}else {
+					alert("Le contenu du post n'est pas valide ou est inexistant")
+				}
+			}else{
+				axios.put(`http://localhost:3000/api/post/${post_id}`, formData, {
+					headers:{
+						'Content-Type': 'multipart/form-data',
+						'Authorization' : `Token ${userStorage.token}`
+					}
+				})
+				.then(response => {
+					console.log(response);
+					window.location.reload();
+				})
+				.catch(error => {
+					console.log(`Quelque chose c'est mal passé.${error}`)
+				})
+			}
+		},
 
 		postCommentCreate(context){
 			let rg = context.state.postsRg
