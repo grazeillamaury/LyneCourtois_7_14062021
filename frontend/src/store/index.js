@@ -20,10 +20,11 @@ export default new Vuex.Store({
 		},
 		imagePost : "",
 		postId : "",
+		commentId : "",
 		postText : "",
 		commentText : "",
-		lettersRg : /^[-'a-zA-ZÀ-ÖØ-öø-ÿ\s]+$/,
-		postsRg : /^[-'a-zA-Z0-9À-ÖØ-öø-ÿ\s#!^$()?+*.:,|]+$/,
+		lettersRg : /^[-'a-zA-ZÀ-ÖØ-öø-ÿœ\s]+$/,
+		postsRg : /^[-'a-zA-Z0-9À-ÖØ-öø-ÿœ\s#!^$()?+*.:,|]+$/,
 		emailRg : /^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,4}$/
 	},
 	getters:{
@@ -196,7 +197,7 @@ export default new Vuex.Store({
 						console.log(`Quelque chose c'est mal passé.${error}`)
 					})
 				}else {
-					alert("Le contenu du post n'est pas valide ou est inexistant")
+					alert("Le contenu du post n'est pas valide")
 				}
 			}else{
 				axios.put(`http://localhost:3000/api/post/${post_id}`, formData, {
@@ -249,6 +250,39 @@ export default new Vuex.Store({
 				})
 			}else {
 				alert("Le contenu du post n'est pas valide ou est inexistant")
+			}
+		},
+		putCommentEdit(context){
+			let rg = context.state.postsRg
+			let comment_id = context.state.commentId
+			let content = context.state.commentText
+			let content_valid = rg.test(content)
+
+			if (content_valid) {
+
+				let formData = new FormData()
+				let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
+
+				let comment = {
+					text : content
+				}
+
+				formData.append('content', JSON.stringify(comment));
+				axios.put(`http://localhost:3000/api/comment/${comment_id}`, formData, {
+					headers:{
+						'Content-Type': 'multipart/form-data',
+						'Authorization' : `Token ${userStorage.token}`
+					}
+				})
+				.then(response => {
+					console.log(response);
+					window.location.href = 'http://localhost:8080/Activity';
+				})
+				.catch(error => {
+					console.log(`Quelque chose c'est mal passé.${error}`)
+				})
+			}else {
+				alert("Le contenu du post n'est pas valide ou est inexistant. Si aucune modification a été faite appuyer sur Annuler")
 			}
 		},
 	},

@@ -34,8 +34,11 @@ exports.getAllPost = (req, res, next) => {
       },
       "user"
     ],
-    order: [['date', 'DESC']] },
-    { limit: 50 })
+    order: [
+      ['date', 'DESC'],
+      ['comments','date', 'ASC']
+    ]
+  }, { limit: 50 })
   .then((posts) => {
     res.status(200).json(posts);
   })
@@ -59,7 +62,9 @@ exports.getOnePost = (req, res, next) => {
         include : [ "user"]
       },
       "user"
-    ]})
+    ],
+    order: [['comments','date', 'ASC']]
+  })
   .then((post) => {
     res.status(200).json(post);
   })

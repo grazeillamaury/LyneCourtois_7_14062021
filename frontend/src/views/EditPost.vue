@@ -7,27 +7,49 @@
             return{
                 role:"",
                 sex : "",
-                image : "",
-                posts : ""
+                post : "",
+                user_id : "",
+                editMode: 0,
             }
         },
         components: {
             SubmitButton
         },
         computed : {
+            commentText:{
+                // getter
+                get: function () {
+                    return this.$store.state.commentText;
+                },
+                // setter
+                set: function (newValue) {
+                    this.$store.state.commentText = newValue;
+                }
+            },
             postText:{
                 // getter
                 get: function () {
-                    return this.$store.state.postText;
+                    return this.post.content;
                 },
                 // setter
                 set: function (newValue) {
                     this.$store.state.postText = newValue;
                 }
-            },
+            }
         },
         methods : {
-            ...mapActions(['postPostCreate']),
+            ...mapActions(['postCommentCreate', 'putPostEdit']),
+            getPostId() {
+                this.$store.state.postId = this.$route.params.id
+            },
+            changeToEditMode(){
+                this.editMode = 1
+            },
+            changeToNormalMode(){
+                this.editMode = 0
+                this.$store.state.postText = ""
+                this.$store.state.imagePost = ""
+            },
             addImage(event) {
                 this.$store.state.imagePost = event.target.files[0]
             }
@@ -37,6 +59,8 @@
             if (userStorage === null) {
                 window.location.href = 'http://localhost:8080';
             }
+            this.$store.state.postId = this.$route.params.id
+            this.$store.state.commentText = ""
         },
         beforeMount(){
             const axios = require('axios')
@@ -48,97 +72,119 @@
             this.sex = userStorage.sex
             this.user_id = userStorage.id
             this.role = userStorage.roleId
+            let post_id = this.$route.params.id
 
-            axios.get('http://localhost:3000/api/post', {
+            axios.get(`http://localhost:3000/api/post/${post_id}`, {
                 headers:{
                     'Authorization' : `Token ${userStorage.token}`
                 }
             })
-            .then(posts => {
-                this.posts = posts.data
+                .then(post => {
+                    let commentCount =  0
+                    this.post = post.data
 
-                this.posts.forEach((post) => {
-                    let commentsCount = 0
-
-                    post.date = moment(post.date).format('Do MMMM YYYY à HH:mm')
-                    post.comments.forEach((comment) => {
+                    this.post.date = moment(this.post.date).format('Do MMMM YYYY à HH:mm')
+                    this.post.comments.forEach((comment) => {
                         comment.date = moment(comment.date).format('DD/MM/YY à HH:mm')
-                        commentsCount ++
+                        commentCount ++
                     })
-                    post.commentsNum = commentsCount
+                    this.post.commentsNum = commentCount
+
                 })
-            })
-            .catch(error => {
-                console.log(error);
-                alert(`Quelque chose c'est mal passé. Essayez à nouveau ${error}`)
-            });
+                .catch(error => {
+                    console.log(error);
+                    alert(`Quelque chose c'est mal passé. Essayez à nouveau ${error}`)
+                });
         },
         mounted(){
-            document.title = 'Activité'
+            document.title = `Répondre à un post`
         }
     }
 </script>
 
 <template>
     <section>
-        <form class="post">
-            <div class="line1">
-                <router-link to="/User/" v-if="sex === 'M'"><img src="../assets/user_male.svg" title="Tableau de bord" class="user_img"></router-link>
-                <router-link to="/User/" v-else><img src="../assets/user_female.svg" title="Tableau de bord" class="user_img"></router-link>
-                <textarea name="post" placeholder="Écrivez quelque chose ici ..." rows="1" v-model="postText"></textarea>
-            </div>
-            <br>
-
-            <div class="line2">
-                <div>
-                    <label for="myfile"><i class="fas fa-photo-video"></i> Photo / Vidéo</label>
-                    <br>
-                    <input @change="addImage" type="file" id="myfile" name="myfile" accept= "image/*">
-                </div>
-                <SubmitButton class="btn-post" @click="postPostCreate" value="Publier"/>
-            </div>
-        </form>
-
-        <div id="posts">
-            <div class="post" v-for="item in posts" :key="item.id">
+        <div class="post">
+            <div v-if="editMode === 0">
                 <div class="line1">
                     <div class="user">
-                        <router-link to="/User/" v-if="item.user.sex === 'M'"><img src="../assets/user_male.svg" title="Tableau de bord" class="user_img"></router-link>
+                        <router-link to="/User/" v-if="post.user.sex === 'M'"><img src="../assets/user_male.svg" title="Tableau de bord" class="user_img"></router-link>
                         <router-link to="/User/" v-else><img src="../assets/user_female.svg" title="Tableau de bord" class="user_img"></router-link>
                         <div>
-                            <h2>{{item.user.username}}</h2>
-                            <p>{{item.date}}</p>
+                            <h2>{{post.user.username}}</h2>
+                            <p>{{post.date}}</p>
                         </div>
                     </div>
                     <div>
-                        <router-link :to="{name: 'Post', params: { id: item.id },}" v-if="item.user.id === user_id"><i class="fas fa-user-edit" title="Modifier ou supprimer"></i></router-link>
-                        <router-link :to="{name: 'Post', params: { id: item.id },}" v-else-if="role === 2"><i class="fas fa-user-edit" title="Modifier ou supprimer"></i></router-link>
+                        <i v-if="post.user.id === user_id" @click="changeToEditMode" class="fas fa-edit" title="Modifier"></i>
+                        <i v-if="post.user.id === user_id" class="fas fa-trash" title="Supprimer"></i>
+                        <i v-else-if="role === 2" class="fas fa-trash" title="Supprimer"></i>
                     </div>
                 </div>
 
-                <p class="text">{{item.content}}</p>
+                <p class="text">{{post.content}}</p>
 
-                <img v-if="item.image" :src="item.image" class="post_img" alt="aucune description disponible">
+                <img v-if="post.image" :src="post.image" class="post_img" alt="aucune description disponible">
 
                 <div class="share_comment">
-                    <router-link :to="{name: 'Post', params: { id: item.id },}"><p><i class="fas fa-comments" title="Commenter"></i>{{ item.commentsNum }}</p></router-link>
+                    <p><i class="fas fa-comments" title="Commenter"></i>{{ post.commentsNum }}</p>
                     <p><i class="fas fa-share" title="Partager"></i>0</p>
                 </div>
                 <div class="comments">
-                    <div class="comment" v-for="comment in item.comments" :key="comment.id">
+                    <div class="comment" v-for="comment in post.comments" :key="comment.id">
                         <div class="user_comment">
                             <div class="user_comment_info">
-                                <img src="../assets/user_male.svg" class="user_img">
+                                <router-link to="/User/" v-if="comment.user.sex === 'M'"><img src="../assets/user_male.svg" title="Tableau de bord" class="user_img"></router-link>
+                                <router-link to="/User/" v-else><img src="../assets/user_female.svg" title="Tableau de bord" class="user_img"></router-link>
                                 <div>
                                     <h2>{{comment.user.username}}</h2>
                                     <p>{{comment.date}}</p>
                                 </div>
                             </div>
                             <p>{{ comment.content }}</p>
+                            <div>
+                                <router-link :to="{name: 'Comment', params: { id: comment.id },}" v-if="comment.user.id === user_id">
+                                    <i class="fas fa-user-edit" title="Modifier ou supprimer"></i>
+                                </router-link>
+                                <router-link :to="{name: 'Comment', params: { id: comment.id },}" v-else-if="role === 2">
+                                    <i class="fas fa-user-edit" title="Modifier ou supprimer"></i>
+                                </router-link>
+                            </div>
                         </div>
                     </div>
+                    <form class="form_comment">
+                        <div class="line1">
+                            <router-link to="/User/" v-if="sex === 'M'">
+                                <img src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
+                            </router-link>
+                            <router-link to="/User/" v-else>
+                                <img src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
+                            </router-link>
+
+                            <textarea name="post" placeholder="Écrivez quelque chose ici ..." rows="1" v-model="commentText" @change="getPostId"></textarea>
+                        </div>
+                        <SubmitButton class="btn-post" @click="postCommentCreate" value="Publier"/>
+                    </form>
                 </div>
             </div>
+            <form class="post" v-else-if="editMode === 1">
+                <div class="line1">
+                    <router-link to="/User/" v-if="sex === 'M'"><img src="../assets/user_male.svg" title="Tableau de bord" class="user_img"></router-link>
+                    <router-link to="/User/" v-else><img src="../assets/user_female.svg" title="Tableau de bord" class="user_img"></router-link>
+                    <textarea name="post" rows="1" v-model="postText"></textarea>
+                </div>
+                <br>
+
+                <div class="line2">
+                    <div>
+                        <label for="myfile"><i class="fas fa-photo-video"></i> Photo / Vidéo</label>
+                        <br>
+                        <input @change="addImage" type="file" id="myfile" name="myfile" accept= "image/*">
+                    </div>
+                    <SubmitButton class="btn-post" @click="putPostEdit" value="Changer"/>
+                    <SubmitButton class="btn-post" @click="changeToNormalMode" value="Annuler"/>
+                </div>
+            </form>
         </div>
     </section>
 </template>
@@ -307,7 +353,6 @@ textarea{
     margin-bottom: 5px;
     p{
         margin: 0;
-        align-self: center;
     }
 
 }
@@ -337,7 +382,7 @@ textarea{
     }
 }
 
-.fa-user-edit{
+.fa-edit, .fa-trash{
     margin-left: 20px;
     font-size: 1.8em;
     color: #d1515a;
@@ -346,8 +391,7 @@ textarea{
     }
 }
 
-a {
-    text-decoration: none;
+form a {
     cursor: pointer;
 }
 

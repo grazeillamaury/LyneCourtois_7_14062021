@@ -3,7 +3,8 @@ import VueRouter from 'vue-router'
 import Login from '../views/Login.vue'
 import Signup from '../views/Signup.vue'
 import Activity from '../views/Activity.vue'
-import Post from '../views/AnswerComment.vue'
+import Post from '../views/EditPost.vue'
+import Comment from '../views/EditComment.vue'
 
 Vue.use(VueRouter)
 
@@ -32,6 +33,11 @@ const routes = [
     path: '/Post/:id',
     name: 'Post',
     component: Post
+  },
+  {
+    path: '/Comment/:id',
+    name: 'Comment',
+    component: Comment
   }
 ]
 
