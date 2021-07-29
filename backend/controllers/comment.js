@@ -45,8 +45,6 @@ exports.modifyComment = (req, res, next) => {
     content : xss(commentObject.text)
   };
 
-  console.log(comment)
-
   Comment.update(comment, { where: { id: id }})
     .then(data => {
       res.status(201).json({ message: 'Commentaire modifié !' })

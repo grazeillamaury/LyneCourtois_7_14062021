@@ -80,7 +80,7 @@
                     <router-link to="/User/" v-if="sex === 'M'"><img src="../assets/user_male.svg" title="Tableau de bord" class="user_img"></router-link>
                     <router-link to="/User/" v-else><img src="../assets/user_female.svg" title="Tableau de bord" class="user_img"></router-link>
                     <textarea name="post" rows="1" v-model="commentText"></textarea>
-                    <i v-if="post.user.id === user_id" class="fas fa-trash" title="Supprimer"></i>
+                    <i v-if="comment.user.id === user_id" class="fas fa-trash" title="Supprimer"></i>
                     <i v-else-if="role === 2" class="fas fa-trash" title="Supprimer"></i>
                 </div>
                 <br>

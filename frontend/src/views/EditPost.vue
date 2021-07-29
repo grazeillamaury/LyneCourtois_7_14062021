@@ -38,10 +38,7 @@
             }
         },
         methods : {
-            ...mapActions(['postCommentCreate', 'putPostEdit']),
-            getPostId() {
-                this.$store.state.postId = this.$route.params.id
-            },
+            ...mapActions(['postCommentCreate', 'putPostEdit', 'deletePostDelete']),
             changeToEditMode(){
                 this.editMode = 1
             },
@@ -93,7 +90,8 @@
                 })
                 .catch(error => {
                     console.log(error);
-                    alert(`Quelque chose c'est mal passé. Essayez à nouveau ${error}`)
+                    alert(`Ce post n'existe pas`)
+                    window.location.href = 'http://localhost:8080/Activity';
                 });
         },
         mounted(){
@@ -117,8 +115,8 @@
                     </div>
                     <div>
                         <i v-if="post.user.id === user_id" @click="changeToEditMode" class="fas fa-edit" title="Modifier"></i>
-                        <i v-if="post.user.id === user_id" class="fas fa-trash" title="Supprimer"></i>
-                        <i v-else-if="role === 2" class="fas fa-trash" title="Supprimer"></i>
+                        <i v-if="post.user.id === user_id" class="fas fa-trash" title="Supprimer" @click="deletePostDelete"></i>
+                        <i v-else-if="role === 2" class="fas fa-trash" title="Supprimer" @click="deletePostDelete"></i>
                     </div>
                 </div>
 
@@ -161,7 +159,7 @@
                                 <img src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
                             </router-link>
 
-                            <textarea name="post" placeholder="Écrivez quelque chose ici ..." rows="1" v-model="commentText" @change="getPostId"></textarea>
+                            <textarea name="post" placeholder="Écrivez quelque chose ici ..." rows="1" v-model="commentText"></textarea>
                         </div>
                         <SubmitButton class="btn-post" @click="postCommentCreate" value="Publier"/>
                     </form>

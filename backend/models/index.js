@@ -25,7 +25,7 @@ db.users.belongsTo(db.roles, {
 
 //clés étrangères de Posts
 
-db.users.hasMany(db.posts, { as: "posts" });
+db.users.hasMany(db.posts, { as: "posts", onDelete: 'CASCADE' });
 db.posts.belongsTo(db.users, {
   foreignKey: "userId",
   as: "user",
@@ -40,13 +40,13 @@ db.posts.belongsTo(db.posts, {
 
 //clés étrangères de Comments
 
-db.users.hasMany(db.comments, { as: "comments" });
+db.users.hasMany(db.comments, { as: "comments", onDelete: 'CASCADE' });
 db.comments.belongsTo(db.users, {
   foreignKey: "userId",
   as: "user",
 });
 
-db.posts.hasMany(db.comments, { as: "comments" });
+db.posts.hasMany(db.comments, {as: "comments", onDelete: 'CASCADE' });
 db.comments.belongsTo(db.posts, {
   foreignKey: "postId",
   as: "post",
