@@ -51,3 +51,11 @@ exports.modifyComment = (req, res, next) => {
     })
     .catch(error => res.status(500).json({ error }));
 };
+
+exports.deleteComment = (req, res, next) => {
+  const id = req.params.id;
+
+  Comment.destroy({ where: { id : id }})
+    .then(() => res.status(200).json({ message: 'Commentaire supprimé !'}))
+    .catch(error => res.status(400).json({ error }));
+};

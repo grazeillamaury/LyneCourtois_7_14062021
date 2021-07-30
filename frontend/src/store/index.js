@@ -218,7 +218,6 @@ export default new Vuex.Store({
 		deletePostDelete(context){
 			let post_id = context.state.postId
 			let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
-			console.log(post_id)
 
 			axios.delete(`http://localhost:3000/api/post/${post_id}`,{
 				headers:{
@@ -302,6 +301,23 @@ export default new Vuex.Store({
 			}else {
 				alert("Le contenu du post n'est pas valide ou est inexistant. Si aucune modification a été faite appuyer sur Annuler")
 			}
+		},
+		deleteCommentDelete(context){
+			let comment_id = context.state.commentId
+			let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
+
+			axios.delete(`http://localhost:3000/api/comment/${comment_id}`,{
+				headers:{
+					'Authorization' : `Token ${userStorage.token}`
+				}
+			})
+			.then(response => {
+				console.log(response);
+				window.location.href = 'http://localhost:8080/Activity';
+			})
+			.catch(error => {
+				console.log(`Quelque chose c'est mal passé.${error}`)
+			})
 		},
 	},
 	modules: {
