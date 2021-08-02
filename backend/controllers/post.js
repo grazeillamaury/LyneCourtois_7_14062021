@@ -2,6 +2,7 @@ const fs = require('fs')
 const xss = require('xss')
 const db = require("../models")
 const Post = db.posts
+const User = db.users
 const Comment = db.comments
 
 exports.createPost = (req, res, next) => {
@@ -41,6 +42,42 @@ exports.getAllPost = (req, res, next) => {
   }, { limit: 50 })
   .then((posts) => {
     res.status(200).json(posts);
+  })
+  .catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+    }
+  );
+};
+
+exports.getAllPostFromOneUser = (req, res, next) => {
+  const id = req.params.userId;
+
+  console.log(id)
+
+  User.findByPk(id, {
+    include: [
+      { 
+        model : Post,
+        as: 'posts',
+        include: [
+          { 
+            model : Comment,
+            as: 'comments',
+            include : [ "user"]
+          },
+        ],
+      },
+    ],
+    order: [
+      ['posts', 'date', 'DESC'],
+      ['posts', 'comments','date', 'ASC']
+    ]
+  })
+  .then((post) => {
+    res.status(200).json(post);
   })
   .catch(
     (error) => {

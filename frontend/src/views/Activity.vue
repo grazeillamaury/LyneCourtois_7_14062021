@@ -8,7 +8,8 @@
                 role:"",
                 sex : "",
                 image : "",
-                posts : ""
+                posts : "",
+                user_id :""
             }
         },
         components: {
@@ -83,8 +84,10 @@
     <section>
         <form class="post">
             <div class="line1">
-                <router-link to="/User/" v-if="sex === 'M'"><img src="../assets/user_male.svg" title="Tableau de bord" class="user_img"></router-link>
-                <router-link to="/User/" v-else><img src="../assets/user_female.svg" title="Tableau de bord" class="user_img"></router-link>
+                <router-link :to="{name: 'User', params: { id: user_id }}">
+                    <img src="../assets/user_male.svg" title="Tableau de bord" class="user_img" v-if="sex === 'M'">
+                    <img src="../assets/user_female.svg" title="Tableau de bord" class="user_img" v-else>
+                </router-link>
                 <textarea name="post" placeholder="Écrivez quelque chose ici ..." rows="1" v-model="postText"></textarea>
             </div>
             <br>
@@ -103,8 +106,10 @@
             <div class="post" v-for="item in posts" :key="item.id">
                 <div class="line1">
                     <div class="user">
-                        <router-link to="/User/" v-if="item.user.sex === 'M'"><img src="../assets/user_male.svg" title="Tableau de bord" class="user_img"></router-link>
-                        <router-link to="/User/" v-else><img src="../assets/user_female.svg" title="Tableau de bord" class="user_img"></router-link>
+                        <router-link :to="{name: 'User', params: { id: item.user.id }}">
+                            <img src="../assets/user_male.svg" title="Tableau de bord" class="user_img" v-if="item.user.sex === 'M'">
+                            <img src="../assets/user_female.svg" title="Tableau de bord" class="user_img" v-else>
+                        </router-link>
                         <div>
                             <h2>{{item.user.username}}</h2>
                             <p>{{item.date}}</p>
@@ -122,13 +127,15 @@
 
                 <div class="share_comment">
                     <router-link :to="{name: 'Post', params: { id: item.id },}"><p><i class="fas fa-comments" title="Commenter"></i>{{ item.commentsNum }}</p></router-link>
-                    <p><i class="fas fa-share" title="Partager"></i>0</p>
                 </div>
                 <div class="comments">
                     <div class="comment" v-for="comment in item.comments" :key="comment.id">
                         <div class="user_comment">
                             <div class="user_comment_info">
-                                <img src="../assets/user_male.svg" class="user_img">
+                                <router-link :to="{name: 'User', params: { id: comment.user.id }}">
+                                    <img src="../assets/user_male.svg" title="Tableau de bord" class="user_img" v-if="comment.user.sex === 'M'">
+                                    <img src="../assets/user_female.svg" title="Tableau de bord" class="user_img" v-else>
+                                </router-link>
                                 <div>
                                     <h2>{{comment.user.username}}</h2>
                                     <p>{{comment.date}}</p>

@@ -1,63 +1,23 @@
 <script>
-    import SubmitButton from "../components/SubmitButton.vue"
-    import { mapActions } from "vuex"
     export default {
         name: "Login",
         data(){
             return{
                 role:"",
                 sex : "",
-                post : "",
+                image : "",
+                user : "",
                 user_id : "",
-                editMode: 0,
+                creator_id:"",
             }
         },
-        components: {
-            SubmitButton
-        },
-        computed : {
-            commentText:{
-                // getter
-                get: function () {
-                    return this.$store.state.commentText;
-                },
-                // setter
-                set: function (newValue) {
-                    this.$store.state.commentText = newValue;
-                }
-            },
-            postText:{
-                // getter
-                get: function () {
-                    return this.post.content;
-                },
-                // setter
-                set: function (newValue) {
-                    this.$store.state.postText = newValue;
-                }
-            }
-        },
-        methods : {
-            ...mapActions(['postCommentCreate', 'putPostEdit', 'deletePostDelete']),
-            changeToEditMode(){
-                this.editMode = 1
-            },
-            changeToNormalMode(){
-                this.editMode = 0
-                this.$store.state.postText = ""
-                this.$store.state.imagePost = ""
-            },
-            addImage(event) {
-                this.$store.state.imagePost = event.target.files[0]
-            }
-        },
+        computed : {},
+        methods : {},
         beforeCreate(){
             const userStorage = JSON.parse(sessionStorage.getItem('userToken'))
             if (userStorage === null) {
                 window.location.href = 'http://localhost:8080';
             }
-            this.$store.state.postId = this.$route.params.id
-            this.$store.state.commentText = ""
         },
         beforeMount(){
             const axios = require('axios')
@@ -69,68 +29,67 @@
             this.sex = userStorage.sex
             this.user_id = userStorage.id
             this.role = userStorage.roleId
-            let post_id = this.$route.params.id
+            this.creator_id = this.$route.params.id
 
-            axios.get(`http://localhost:3000/api/post/${post_id}`, {
+            axios.get(`http://localhost:3000/api/post/user/${this.creator_id}`, {
                 headers:{
                     'Authorization' : `Token ${userStorage.token}`
                 }
             })
-                .then(post => {
-                    let commentCount =  0
-                    this.post = post.data
+            .then(user_posts => {
+                this.user = user_posts.data
 
-                    this.post.date = moment(this.post.date).format('Do MMMM YYYY à HH:mm')
-                    this.post.comments.forEach((comment) => {
+                this.user.posts.forEach((post) => {
+                    let commentsCount = 0
+
+                    post.date = moment(post.date).format('Do MMMM YYYY à HH:mm')
+
+                    post.comments.forEach((comment) => {
                         comment.date = moment(comment.date).format('DD/MM/YY à HH:mm')
-                        commentCount ++
+                        commentsCount ++
                     })
-                    this.post.commentsNum = commentCount
-
+                    post.commentsNum = commentsCount
                 })
-                .catch(error => {
-                    console.log(error);
-                    alert(`Ce post n'existe pas`)
-                    window.location.href = 'http://localhost:8080/Activity';
-                });
+            })
+            .catch(error => {
+                console.log(error);
+                alert(`Quelque chose c'est mal passé. Essayez à nouveau ${error}`)
+            });
         },
         mounted(){
-            document.title = `Répondre à un post`
+            document.title = 'Activité'
         }
     }
 </script>
 
 <template>
     <section>
-        <div class="post">
-            <div v-if="editMode === 0">
+        <div class="posts">
+            <div class="post" v-for="item in user.posts" :key="item.id">
                 <div class="line1">
                     <div class="user">
-                        <router-link :to="{name: 'User', params: { id: post.user.id }}">
-                            <img src="../assets/user_male.svg" title="Tableau de bord" class="user_img" v-if="post.user.sex === 'M'">
-                            <img src="../assets/user_female.svg" title="Tableau de bord" class="user_img" v-else>
-                        </router-link>
+                        <img src="../assets/user_male.svg" title="Tableau de bord" class="user_img" v-if="user.sex === 'M'">
+                        <img src="../assets/user_female.svg" title="Tableau de bord" class="user_img" v-else>
                         <div>
-                            <h2>{{post.user.username}}</h2>
-                            <p>{{post.date}}</p>
+                            <h2>{{user.username}}</h2>
+                            <p>{{item.date}}</p>
                         </div>
                     </div>
                     <div>
-                        <i v-if="post.user.id === user_id" @click="changeToEditMode" class="fas fa-edit" title="Modifier"></i>
-                        <i v-if="post.user.id === user_id" class="fas fa-trash" title="Supprimer" @click="deletePostDelete"></i>
-                        <i v-else-if="role === 2" class="fas fa-trash" title="Supprimer" @click="deletePostDelete"></i>
+                        <router-link :to="{name: 'Post', params: { id: item.id },}" v-if="user.id === user_id"><i class="fas fa-user-edit" title="Modifier ou supprimer"></i></router-link>
+                        <router-link :to="{name: 'Post', params: { id: item.id },}" v-else-if="role === 2"><i class="fas fa-user-edit" title="Modifier ou supprimer"></i></router-link>
                     </div>
                 </div>
 
-                <p class="text">{{post.content}}</p>
+                <p class="text">{{item.content}}</p>
 
-                <img v-if="post.image" :src="post.image" class="post_img" alt="aucune description disponible">
+                <img v-if="item.image" :src="item.image" class="post_img" alt="aucune description disponible">
 
                 <div class="share_comment">
-                    <p><i class="fas fa-comments" title="Commenter"></i>{{ post.commentsNum }}</p>
+                    <router-link :to="{name: 'Post', params: { id: item.id },}"><p><i class="fas fa-comments" title="Commenter"></i>{{ item.commentsNum }}</p></router-link>
                 </div>
                 <div class="comments">
-                    <div class="comment" v-for="comment in post.comments" :key="comment.id">
+                    <div class="comment" v-for="comment in item.comments" :key="comment.id">
                         <div class="user_comment">
                             <div class="user_comment_info">
                                 <router-link :to="{name: 'User', params: { id: comment.user.id }}">
@@ -143,58 +102,37 @@
                                 </div>
                             </div>
                             <p>{{ comment.content }}</p>
-                            <div>
-                                <router-link :to="{name: 'Comment', params: { id: comment.id },}" v-if="comment.user.id === user_id">
-                                    <i class="fas fa-user-edit" title="Modifier ou supprimer"></i>
-                                </router-link>
-                                <router-link :to="{name: 'Comment', params: { id: comment.id },}" v-else-if="role === 2">
-                                    <i class="fas fa-user-edit" title="Modifier ou supprimer"></i>
-                                </router-link>
-                            </div>
                         </div>
                     </div>
-                    <form class="form_comment">
-                        <div class="line1">
-                            <router-link :to="{name: 'User', params: { id: user_id }}">
-                                <img src="../assets/user_male.svg" title="Tableau de bord" class="user_img" v-if="sex === 'M'">
-                                <img src="../assets/user_female.svg" title="Tableau de bord" class="user_img" v-else>
-                            </router-link>
-
-                            <textarea name="post" placeholder="Écrivez quelque chose ici ..." rows="1" v-model="commentText"></textarea>
-                        </div>
-                        <SubmitButton class="btn-post" @click="postCommentCreate" value="Publier"/>
-                    </form>
                 </div>
             </div>
-            <form class="post" v-else-if="editMode === 1">
-                <div class="line1">
-                    <router-link :to="{name: 'User', params: { id: user_id }}">
-                        <img src="../assets/user_male.svg" title="Tableau de bord" class="user_img" v-if="sex === 'M'">
-                        <img src="../assets/user_female.svg" title="Tableau de bord" class="user_img" v-else>
-                    </router-link>
-                    <textarea name="post" rows="1" v-model="postText"></textarea>
-                </div>
-                <br>
-
-                <div class="line2">
-                    <div>
-                        <label for="myfile"><i class="fas fa-photo-video"></i> Photo / Vidéo</label>
-                        <br>
-                        <input @change="addImage" type="file" id="myfile" name="myfile" accept= "image/*">
-                    </div>
-                    <SubmitButton class="btn-post" @click="putPostEdit" value="Changer"/>
-                    <SubmitButton class="btn-post" @click="changeToNormalMode" value="Annuler"/>
-                </div>
-            </form>
         </div>
+        <aside class="user_info">
+            <h2>{{ user.username }}</h2>
+            <img src="../assets/user_male.svg" title="Tableau de bord" class="user_img" v-if="user.sex === 'M'">
+            <img src="../assets/user_female.svg" title="Tableau de bord" class="user_img" v-else>
+            <p>{{user.biography}}</p>
+            <p>{{user.email}}</p>
+            <p v-if="user.sex === 'F'" >Femme</p>
+            <p v-else>Homme</p>
+        </aside>
     </section>
 </template>
 
 <style scoped lang="scss">
+section{
+    display: flex;
+    justify-content: space-between;
+}
+
 h2{
     color: #fd2d01;
     font-size: 1.5em;
     font-weight: 100;
+}
+
+.posts{
+    width: 80%;
 }
 
 .post{
@@ -202,8 +140,7 @@ h2{
     margin-bottom: 40px;
     padding: 10px 20px 10px 20px;
     border-radius: 30px;
-    margin-left: 4%;
-    margin-right: 4%;
+    margin: 0 4%;
     display: flex;
     flex-direction: column;
     &_img{
@@ -354,6 +291,7 @@ textarea{
     margin-bottom: 5px;
     p{
         margin: 0;
+        align-self: center;
     }
 
 }
@@ -383,7 +321,7 @@ textarea{
     }
 }
 
-.fa-edit, .fa-trash{
+.fa-user-edit{
     margin-left: 20px;
     font-size: 1.8em;
     color: #d1515a;
@@ -392,14 +330,19 @@ textarea{
     }
 }
 
-form a {
+a {
+    text-decoration: none;
     cursor: pointer;
+}
+
+.user_info{
+    background-color: #ffd7d7;
+    width: 20%;
 }
 
 @media screen and (min-width:1024px){
     .post{
-        margin-right: 20%;
-        margin-left: 20%;
+        margin: 0 15%;
     }
 
     .line1 img{

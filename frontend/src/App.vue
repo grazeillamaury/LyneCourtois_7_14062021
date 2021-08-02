@@ -7,7 +7,7 @@
 		</div>
 
 		<Navigation v-else>
-			<router-view/>
+			<router-view :key="$route.fullPath"/>
 		</Navigation>
 	</div>
 </template>

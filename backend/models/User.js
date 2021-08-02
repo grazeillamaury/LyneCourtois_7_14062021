@@ -9,11 +9,6 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: false,
       unique : 'uniqueIndex'
     },
-    mail_visible: {
-      type: Sequelize.INTEGER(1),
-      allowNull: false,
-      defaultValue: 1
-    },
     password: {
       type: Sequelize.STRING(100),
       allowNull: false

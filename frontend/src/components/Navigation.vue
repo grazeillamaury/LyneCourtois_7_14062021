@@ -2,8 +2,10 @@
 	<div>
 		<nav>
 			<div>
-				<router-link to="/User/" v-if="sex === 'M'"><img src="../assets/user_male.svg" title="Tableau de bord"></router-link>
-				<router-link to="/User/" v-else><img src="../assets/user_female.svg" title="Tableau de bord"></router-link>
+				<router-link :to="{name: 'User', params: { id: user_id }}">
+                    <img src="../assets/user_male.svg" title="Tableau de bord" class="user_img" v-if="sex === 'M'">
+                    <img src="../assets/user_female.svg" title="Tableau de bord" class="user_img" v-else>
+                </router-link>
 				<i class="fas fa-sign-out-alt" title="Déconnexion" @click="userSignout"></i>
                 <router-link to="/Param"><i class="fas fa-tools" title="Paramètres"></i></router-link>
 			</div>
@@ -25,6 +27,7 @@
 		data(){
 			return{
 				sex : "",
+				user_id : ""
 			}
 		},
 		methods : {
@@ -33,6 +36,7 @@
 		beforeMount(){
 			let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
 			this.sex = userStorage.sex
+			this.user_id = userStorage.id
 		}
 	}
 </script>

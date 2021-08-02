@@ -31,13 +31,6 @@ db.posts.belongsTo(db.users, {
   as: "user",
 });
 
-db.posts.hasMany(db.posts, { as: "posts" });
-db.posts.belongsTo(db.posts, {
-  foreignKey: "postId",
-  as: "post",
-  allowNull: true
-});
-
 //clés étrangères de Comments
 
 db.users.hasMany(db.comments, { as: "comments", onDelete: 'CASCADE' });
