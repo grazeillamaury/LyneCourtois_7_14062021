@@ -4,13 +4,14 @@ const helmet = require("helmet");
 const userRoutes = require('./routes/user');
 const postRoutes = require('./routes/post');
 const commentRoutes = require('./routes/comment');
+const paramRoutes = require('./routes/param');
 
 const db = require("./models");
-db.sequelize.sync({ force: true }).then(() => {
+/*db.sequelize.sync({ force: true }).then(() => {
   db.roles.create({ name : "employé" })
   db.roles.create({ name : "admin" })
   console.log("Drop and re-sync db.");
-});
+});*/
 
 const app = express();
 app.use(helmet());
@@ -27,4 +28,5 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/api/auth', userRoutes);
 app.use('/api/post', postRoutes);
 app.use('/api/comment', commentRoutes);
+app.use('/api/param', paramRoutes);
 module.exports = app;

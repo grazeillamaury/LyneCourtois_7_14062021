@@ -7,7 +7,8 @@
                     <img src="../assets/user_female.svg" title="Tableau de bord" class="user_img" v-else>
                 </router-link>
 				<i class="fas fa-sign-out-alt" title="Déconnexion" @click="userSignout"></i>
-                <router-link to="/Param"><i class="fas fa-tools" title="Paramètres"></i></router-link>
+
+                <router-link :to="{name: 'Parametre', params: { id: user_id }}"><i class="fas fa-tools" title="Paramètres"></i></router-link>
 			</div>
 			<router-link to="/Activity"><i class="fas fa-globe" title="Activité"></i></router-link>
 		</nav>

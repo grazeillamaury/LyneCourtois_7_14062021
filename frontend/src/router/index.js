@@ -6,6 +6,7 @@ import Activity from '../views/Activity.vue'
 import Post from '../views/EditPost.vue'
 import Comment from '../views/EditComment.vue'
 import User from '../views/User.vue'
+import Param from '../views/Param.vue'
 
 Vue.use(VueRouter)
 
@@ -44,6 +45,11 @@ const routes = [
     path: '/User/:id',
     name: 'User',
     component: User
+  },
+  {
+    path: '/Parametre/:id',
+    name: 'Parametre',
+    component: Param
   }
 ]
 

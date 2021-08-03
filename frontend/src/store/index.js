@@ -18,12 +18,20 @@ export default new Vuex.Store({
 			sex : "",
 			email : ""
 		},
+		param:{
+			username : "",
+			imageUser:"",
+			email : "",
+			oldpassword:"",
+			newpasswordone : "",
+			newpasswordtwo : ""
+		},
 		imagePost : "",
 		postId : "",
 		commentId : "",
 		postText : "",
 		commentText : "",
-		lettersRg : /^[-'a-zA-ZÀ-ÖØ-öø-ÿœ\s]+$/,
+		lettersRg : /^[-'a-zA-ZÀ-ÖØ-öø-ÿœ\s.]+$/,
 		postsRg : /^[-'a-zA-Z0-9À-ÖØ-öø-ÿœ\s#!^$()?+*.:,|]+$/,
 		emailRg : /^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,4}$/
 	},
@@ -233,6 +241,7 @@ export default new Vuex.Store({
 			})
 		},
 
+
 		postCommentCreate(context){
 			let rg = context.state.postsRg
 			let post_id = context.state.postId
@@ -318,6 +327,51 @@ export default new Vuex.Store({
 			.catch(error => {
 				console.log(`Quelque chose c'est mal passé.${error}`)
 			})
+		},
+
+
+		putParamEdit(context){
+			let lettersRg = context.state.lettersRg
+			let emailRg = context.state.emailRg
+
+			let username = context.state.param.username
+			let image = context.state.param.imageUser
+			let email = context.state.param.email
+
+			let username_valid = lettersRg.test(username)
+			let email_valid = emailRg.test(email)
+
+			if (username_valid && email_valid) {
+
+				let formData = new FormData()
+				let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
+				let user_id = userStorage.id
+
+				let param = {
+					username : username,
+					email : email
+				}
+
+				formData.append('content', JSON.stringify(param));
+				if (image) {
+					formData.append('image', image);
+				}
+				axios.put(`http://localhost:3000/api/param/${user_id}`, formData, {
+					headers:{
+						'Content-Type': 'multipart/form-data',
+						'Authorization' : `Token ${userStorage.token}`
+					}
+				})
+				.then(response => {
+					console.log(response);
+					window.location.reload();
+				})
+				.catch(error => {
+					console.log(`Quelque chose c'est mal passé.${error}`)
+				})
+			}else {
+				alert("Le contenu du post n'est pas valide ou est inexistant. Si aucune modification a été faite appuyer sur Annuler")
+			}
 		},
 	},
 	modules: {
