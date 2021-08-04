@@ -356,7 +356,7 @@ export default new Vuex.Store({
 				if (image) {
 					formData.append('image', image);
 				}
-				axios.put(`http://localhost:3000/api/param/${user_id}`, formData, {
+				axios.put(`http://localhost:3000/api/param/user/${user_id}`, formData, {
 					headers:{
 						'Content-Type': 'multipart/form-data',
 						'Authorization' : `Token ${userStorage.token}`
@@ -370,7 +370,42 @@ export default new Vuex.Store({
 					console.log(`Quelque chose c'est mal passé.${error}`)
 				})
 			}else {
-				alert("Le contenu du post n'est pas valide ou est inexistant. Si aucune modification a été faite appuyer sur Annuler")
+				alert("Les modifications ne sont pas valides")
+			}
+		},
+		putPassWordEdit(context){
+			if (context.state.param.newpasswordone === context.state.param.newpasswordtwo) {
+				let password = context.state.param.newpasswordone
+
+				let formData = new FormData()
+				let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
+				let user_id = userStorage.id
+
+				let PWchange = {
+					oldpassword : context.state.param.oldpassword,
+					newpassword : password
+				}
+
+				console.log(PWchange)
+
+				formData.append('content', JSON.stringify(PWchange));
+
+				axios.put(`http://localhost:3000/api/param/password/${user_id}`, formData, {
+					headers:{
+						'Content-Type': 'multipart/form-data',
+						'Authorization' : `Token ${userStorage.token}`
+					}
+				})
+				.then(response => {
+					console.log(response);
+					window.location.reload();
+				})
+				.catch(error => {
+					console.log(`Quelque chose c'est mal passé.${error}`)
+				})
+			}
+			else {
+				alert("Les mots de passe ne sont pas identiques")
 			}
 		},
 	},

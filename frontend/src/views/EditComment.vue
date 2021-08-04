@@ -77,8 +77,11 @@
         <div class="post">
             <form class="post">
                 <div class="line1">
-                    <router-link to="/User/" v-if="sex === 'M'"><img src="../assets/user_male.svg" title="Tableau de bord" class="user_img"></router-link>
-                    <router-link to="/User/" v-else><img src="../assets/user_female.svg" title="Tableau de bord" class="user_img"></router-link>
+                    <router-link :to="{name: 'User', params: { id: comment.user.id }}">
+                        <img v-if="comment.user.image" :src="comment.user.image" title="Tableau de bord" class="user_img">
+                        <img v-else-if="comment.user.sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
+                        <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
+                    </router-link>
                     <textarea name="post" rows="1" v-model="commentText"></textarea>
                     <i v-if="comment.user.id === user_id" class="fas fa-trash" title="Supprimer" @click="deleteCommentDelete"></i>
                     <i v-else-if="role === 2" class="fas fa-trash" title="Supprimer" @click="deleteCommentDelete"></i>

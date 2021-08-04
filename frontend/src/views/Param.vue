@@ -65,7 +65,7 @@
             }
         },
         methods : {
-            ...mapActions(['putParamEdit', 'putPasswordEdit', 'deleteUserDelete']),
+            ...mapActions(['putParamEdit', 'putPassWordEdit', 'deleteUserDelete']),
             addImage(event) {
                 this.$store.state.param.imageUser = event.target.files[0]
             }
@@ -107,9 +107,9 @@
 <template>
     <div class="container">
         <aside class="param-profil">
-            <img v-if="this.param.image" :src="this.param.image" title="Tableau de bord" class="profil">
-            <img src="../assets/user_male.svg" title="Tableau de bord" class="profil" v-else-if="param.sex === 'M'">
-            <img src="../assets/user_female.svg" title="Tableau de bord" class="profil" v-else>
+            <img v-if="param.image" :src="param.image" title="Tableau de bord" class="profil">
+            <img v-else-if="param.sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="profil">
+            <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="profil">
             <p>{{param.username}}</p>
         </aside>
         <section>
@@ -158,7 +158,7 @@
                         </div>
                     </aside>
 
-                <SubmitButton class="btn" @click="putPasswordEdit" value="Enregistrer"/>
+                <SubmitButton class="btn" @click="putPassWordEdit" value="Enregistrer"/>
             </form>
 
             <SubmitButton class="btn" @click="deleteUserDelete" value="Supprimer le compte"/>

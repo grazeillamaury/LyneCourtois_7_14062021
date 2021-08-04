@@ -8,6 +8,7 @@
                 role:"",
                 sex : "",
                 post : "",
+                user:"",
                 user_id : "",
                 editMode: 0,
             }
@@ -93,6 +94,20 @@
                     alert(`Ce post n'existe pas`)
                     window.location.href = 'http://localhost:8080/Activity';
                 });
+
+            axios.get(`http://localhost:3000/api/param/${this.user_id}`, {
+                headers:{
+                    'Authorization' : `Token ${userStorage.token}`
+                }
+            })
+                .then(param => {
+                    this.user = param.data
+
+                })
+                .catch(error => {
+                    console.log(error);
+                    alert(`Quelque chose c'est mal passé. Essayez à nouveau ${error}`)
+                });
         },
         mounted(){
             document.title = `Répondre à un post`
@@ -107,8 +122,9 @@
                 <div class="line1">
                     <div class="user">
                         <router-link :to="{name: 'User', params: { id: post.user.id }}">
-                            <img src="../assets/user_male.svg" title="Tableau de bord" class="user_img" v-if="post.user.sex === 'M'">
-                            <img src="../assets/user_female.svg" title="Tableau de bord" class="user_img" v-else>
+                            <img v-if="post.user.image" :src="post.user.image" title="Tableau de bord" class="user_img" >
+                            <img v-else-if="post.user.sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
+                            <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
                         </router-link>
                         <div>
                             <h2>{{post.user.username}}</h2>
@@ -134,8 +150,9 @@
                         <div class="user_comment">
                             <div class="user_comment_info">
                                 <router-link :to="{name: 'User', params: { id: comment.user.id }}">
-                                    <img src="../assets/user_male.svg" title="Tableau de bord" class="user_img" v-if="comment.user.sex === 'M'">
-                                    <img src="../assets/user_female.svg" title="Tableau de bord" class="user_img" v-else>
+                                    <img v-if="comment.user.image" :src="comment.user.image" title="Tableau de bord" class="user_img" >
+                                    <img v-else-if="comment.user.sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
+                                    <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
                                 </router-link>
                                 <div>
                                     <h2>{{comment.user.username}}</h2>
@@ -156,8 +173,9 @@
                     <form class="form_comment">
                         <div class="line1">
                             <router-link :to="{name: 'User', params: { id: user_id }}">
-                                <img src="../assets/user_male.svg" title="Tableau de bord" class="user_img" v-if="sex === 'M'">
-                                <img src="../assets/user_female.svg" title="Tableau de bord" class="user_img" v-else>
+                                <img v-if="user.image" :src="user.image" title="Tableau de bord" class="user_img" >
+                                <img v-else-if="sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
+                                <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
                             </router-link>
 
                             <textarea name="post" placeholder="Écrivez quelque chose ici ..." rows="1" v-model="commentText"></textarea>
@@ -169,8 +187,9 @@
             <form class="post" v-else-if="editMode === 1">
                 <div class="line1">
                     <router-link :to="{name: 'User', params: { id: user_id }}">
-                        <img src="../assets/user_male.svg" title="Tableau de bord" class="user_img" v-if="sex === 'M'">
-                        <img src="../assets/user_female.svg" title="Tableau de bord" class="user_img" v-else>
+                        <img v-if="user.image" :src="user.image" title="Tableau de bord" class="user_img" >
+                        <img v-else-if="sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
+                        <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
                     </router-link>
                     <textarea name="post" rows="1" v-model="postText"></textarea>
                 </div>

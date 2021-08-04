@@ -7,8 +7,8 @@ const multer = require('../middleware/multer-config');
 const paramCtrl = require('../controllers/param');
 
 router.get('/:id', auth, paramCtrl.getOneUserParam);
-router.put('/:id', auth, multer, paramCtrl.modifyParam);
-/*router.put('/:id', auth, multer, paramCtrl.modifyPassword);
-router.delete('/:id', auth, paramCtrl.deleteUser);*/
+router.put('/user/:id', auth, multer, paramCtrl.modifyParam);
+router.put('/password/:id', auth, multer, paramCtrl.modifyPassword);
+//router.delete('/:id', auth, paramCtrl.deleteUser);
 
 module.exports = router;

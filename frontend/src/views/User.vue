@@ -68,8 +68,9 @@
             <div class="post" v-for="item in user.posts" :key="item.id">
                 <div class="line1">
                     <div class="user">
-                        <img src="../assets/user_male.svg" title="Tableau de bord" class="user_img" v-if="user.sex === 'M'">
-                        <img src="../assets/user_female.svg" title="Tableau de bord" class="user_img" v-else>
+                        <img v-if="user.image" :src="user.image" title="Tableau de bord" class="user_img">
+                        <img v-else-if="user.sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
+                        <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
                         <div>
                             <h2>{{user.username}}</h2>
                             <p>{{item.date}}</p>
@@ -93,8 +94,9 @@
                         <div class="user_comment">
                             <div class="user_comment_info">
                                 <router-link :to="{name: 'User', params: { id: comment.user.id }}">
-                                    <img src="../assets/user_male.svg" title="Tableau de bord" class="user_img" v-if="comment.user.sex === 'M'">
-                                    <img src="../assets/user_female.svg" title="Tableau de bord" class="user_img" v-else>
+                                    <img v-if="comment.user.image" :src="comment.user.image" title="Tableau de bord" class="user_img">
+                                    <img v-else-if="comment.user.sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
+                                    <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
                                 </router-link>
                                 <div>
                                     <h2>{{comment.user.username}}</h2>
@@ -109,8 +111,9 @@
         </div>
         <aside class="user_info">
             <h2>{{ user.username }}</h2>
-            <img src="../assets/user_male.svg" title="Tableau de bord" class="user_img" v-if="user.sex === 'M'">
-            <img src="../assets/user_female.svg" title="Tableau de bord" class="user_img" v-else>
+            <img v-if="user.image" :src="user.image" title="Tableau de bord" class="user_img">
+            <img v-else-if="user.sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
+            <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
             <p>{{user.biography}}</p>
             <p>{{user.email}}</p>
             <p v-if="user.sex === 'F'" >Femme</p>

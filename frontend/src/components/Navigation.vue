@@ -1,10 +1,49 @@
+<script>
+	import { mapActions } from "vuex"
+	export default {
+		name: 'Navigation',
+		data(){
+			return{
+				sex : "",
+				user_id : "",
+				user:""
+			}
+		},
+		methods : {
+			...mapActions(['userSignout']),
+		},
+		beforeMount(){
+			const axios = require('axios')
+			let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
+			this.sex = userStorage.sex
+			this.user_id = userStorage.id
+
+			axios.get(`http://localhost:3000/api/param/${this.user_id}`, {
+                headers:{
+                    'Authorization' : `Token ${userStorage.token}`
+                }
+            })
+                .then(param => {
+                    console.log
+                    this.user = param.data
+
+                })
+                .catch(error => {
+                    console.log(error);
+                    alert(`Quelque chose c'est mal passé. Essayez à nouveau ${error}`)
+                });
+		}
+	}
+</script>
+
 <template>
 	<div>
 		<nav>
 			<div>
 				<router-link :to="{name: 'User', params: { id: user_id }}">
-                    <img src="../assets/user_male.svg" title="Tableau de bord" class="user_img" v-if="sex === 'M'">
-                    <img src="../assets/user_female.svg" title="Tableau de bord" class="user_img" v-else>
+                    <img v-if="user.image" :src="user.image" title="Tableau de bord" class="user_img">
+                    <img v-else-if="user.sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
+                    <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
                 </router-link>
 				<i class="fas fa-sign-out-alt" title="Déconnexion" @click="userSignout"></i>
 
@@ -20,27 +59,6 @@
 		</main>
 	</div>
 </template>
-
-<script>
-	import { mapActions } from "vuex"
-	export default {
-		name: 'Navigation',
-		data(){
-			return{
-				sex : "",
-				user_id : ""
-			}
-		},
-		methods : {
-			...mapActions(['userSignout']),
-		},
-		beforeMount(){
-			let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
-			this.sex = userStorage.sex
-			this.user_id = userStorage.id
-		}
-	}
-</script>
 
 <style scoped lang="scss">
 h2{
