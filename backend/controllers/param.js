@@ -4,6 +4,7 @@ const fs = require('fs')
 const xss = require('xss')
 const db = require("../models")
 const Param = db.users
+const Post = db.posts
 
 const schemaPassValid = new passwordValidator();
 
@@ -124,32 +125,61 @@ exports.modifyPassword = (req, res, next) => {
         .catch(error => res.status(500).json({ error }));
     })
     .catch(error => res.status(500).json({ error }));
-
-
-
-
-
-
-
-
-
-  /*const pass = {
-    content : xss(commentObject.text)
-  };
-
-  console.log(id, passwordObject)
-
-  Comment.update(comment, { where: { id: id }})
-    .then(data => {
-      res.status(201).json({ message: 'Commentaire modifié !' })
-    })
-    .catch(error => res.status(500).json({ error }));*/
 };
 
-/*exports.deleteUser = (req, res, next) => {
+exports.deleteUser = (req, res, next) => {
   const id = req.params.id;
 
-  Comment.destroy({ where: { id : id }})
-    .then(() => res.status(200).json({ message: 'Commentaire supprimé !'}))
-    .catch(error => res.status(400).json({ error }));
-};*/
+//recherches les posts d'un utilisateur
+  Post.findAll({ where: { userId: id } })
+  .then((posts) => {
+    //boucle de suppression des images et des posts
+    posts.forEach(post =>{
+      //suppression en cas d'image
+      if (post.image != "") {
+        const filename = post.image.split('/images/')[1];
+        fs.unlink(`images/${filename}`, () => {
+          Post.destroy({ where: { id : post.id }})
+          .catch(error => res.status(400).json({ error }));
+        });
+      //suppression si pas d'image
+      }else{
+        Post.destroy({ where: { id : post.id }})
+        .catch(error => res.status(400).json({ error }));
+      }
+    })
+
+    //recherche d'un utilisateur
+    Param.findByPk(id)
+    .then((user) => {
+      //suppression en cas d'image
+      if (user.image != null) {
+        const filename = user.image.split('/images/')[1];
+        fs.unlink(`images/${filename}`, () => {
+          Param.destroy({ where: { id : id }})
+          .then(() => res.status(200).json({ message: 'Utilisateur supprimé !'}))
+          .catch(error => res.status(400).json({ error }));
+              });
+      //suppression si pas d'image
+      }else{
+        Param.destroy({ where: { id : id }})
+        .then(() => res.status(200).json({ message: 'Utilisateur supprimé !'}))
+        .catch(error => res.status(400).json({ error }));
+      }
+    })
+    .catch(
+      (error) => {
+        res.status(400).json({
+          error: error
+        });
+      }
+    );
+  })
+  .catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+    }
+  );
+};

@@ -31,6 +31,7 @@ export default new Vuex.Store({
 		commentId : "",
 		postText : "",
 		commentText : "",
+		user_id_delete: "",
 		lettersRg : /^[-'a-zA-ZÀ-ÖØ-öø-ÿœ\s.]+$/,
 		postsRg : /^[-'a-zA-Z0-9À-ÖØ-öø-ÿœ\s#!^$()?+*.:,|]+$/,
 		emailRg : /^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,4}$/
@@ -407,6 +408,23 @@ export default new Vuex.Store({
 			else {
 				alert("Les mots de passe ne sont pas identiques")
 			}
+		},
+		deleteUserDelete(context){
+			let user_id = context.state.user_id_delete
+			let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
+
+			axios.delete(`http://localhost:3000/api/param/${user_id}`,{
+				headers:{
+					'Authorization' : `Token ${userStorage.token}`
+				}
+			})
+			.then(() => {
+				sessionStorage.removeItem('userToken');
+				window.location.href = 'http://localhost:8080/'
+			})
+			.catch(error => {
+				console.log(`Quelque chose c'est mal passé.${error}`)
+			})
 		},
 	},
 	modules: {

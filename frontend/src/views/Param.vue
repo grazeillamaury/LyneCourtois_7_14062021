@@ -92,6 +92,8 @@
 
                 this.$store.state.param.username = this.param.username
                 this.$store.state.param.email = this.param.email
+
+                this.$store.state.user_id_delete = this.param.id
             })
             .catch(error => {
                 console.log(error);
