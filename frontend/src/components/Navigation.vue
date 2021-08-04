@@ -5,6 +5,7 @@
 		data(){
 			return{
 				sex : "",
+				role : "",
 				user_id : "",
 				user:""
 			}
@@ -16,6 +17,7 @@
 			const axios = require('axios')
 			let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
 			this.sex = userStorage.sex
+			this.role = userStorage.roleId
 			this.user_id = userStorage.id
 
 			axios.get(`http://localhost:3000/api/param/${this.user_id}`, {
@@ -50,6 +52,7 @@
                 <router-link :to="{name: 'Parametre', params: { id: user_id }}"><i class="fas fa-tools" title="Paramètres"></i></router-link>
 			</div>
 			<router-link to="/Activity"><i class="fas fa-globe" title="Activité"></i></router-link>
+			<router-link to="/User" v-if="role === 2"><i class="fas fa-users" title="Tous les utilisateurs"></i></router-link>
 		</nav>
 		<main>
 			<div id="bande">
@@ -116,14 +119,13 @@ nav{
     }
 }
 
-.fa-globe{
-    color: #122542;
-    font-size: 2.4em;
-    padding-left: 20px;
-}
-
-.fa-globe:hover{
-    color: #d1515a;
+.fa-globe, .fa-users{
+	color: #122542;
+	font-size: 2.4em;
+	padding-left: 20px;
+	&:hover{
+		color: #d1515a;
+	}
 }
 @media screen and (min-width:1024px){
 	main{
@@ -161,7 +163,7 @@ nav{
 		}
     }
 
-    .fa-globe{
+    .fa-globe, .fa-users{
         font-size: 3em;
         padding: 7px;
         padding-top: 20px;

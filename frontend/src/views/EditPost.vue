@@ -165,7 +165,7 @@
                                     <i class="fas fa-user-edit" title="Modifier ou supprimer"></i>
                                 </router-link>
                                 <router-link :to="{name: 'Comment', params: { id: comment.id },}" v-else-if="role === 2">
-                                    <i class="fas fa-user-edit" title="Modifier ou supprimer"></i>
+                                    <i class="fas fa-trash" title="Supprimer"></i>
                                 </router-link>
                             </div>
                         </div>

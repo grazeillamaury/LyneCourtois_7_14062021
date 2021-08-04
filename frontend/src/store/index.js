@@ -419,8 +419,12 @@ export default new Vuex.Store({
 				}
 			})
 			.then(() => {
-				sessionStorage.removeItem('userToken');
-				window.location.href = 'http://localhost:8080/'
+				if (user_id === userStorage.id) {
+					sessionStorage.removeItem('userToken');
+					window.location.href = 'http://localhost:8080/'
+				}
+				window.location.href = 'http://localhost:8080/User'
+
 			})
 			.catch(error => {
 				console.log(`Quelque chose c'est mal passé.${error}`)

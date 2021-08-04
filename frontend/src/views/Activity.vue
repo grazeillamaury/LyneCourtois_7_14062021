@@ -134,8 +134,10 @@
                         </div>
                     </div>
                     <div>
-                        <router-link :to="{name: 'Post', params: { id: item.id },}" v-if="item.user.id === user_id"><i class="fas fa-user-edit" title="Modifier ou supprimer"></i></router-link>
-                        <router-link :to="{name: 'Post', params: { id: item.id },}" v-else-if="role === 2"><i class="fas fa-user-edit" title="Modifier ou supprimer"></i></router-link>
+                        <router-link :to="{name: 'Post', params: { id: item.id },}">
+                            <i v-if="item.user.id === user_id" class="fas fa-user-edit" title="Modifier ou supprimer"></i>
+                            <i v-else-if="role === 2" class="fas fa-user-edit" title="Modifier ou supprimer"></i>
+                        </router-link>
                     </div>
                 </div>
 

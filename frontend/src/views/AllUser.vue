@@ -1,114 +1,68 @@
 <script>
     import SubmitButton from "../components/SubmitButton.vue"
-    import { mapActions } from "vuex"
     export default {
-        name: "Login",
+        name: "AllUser",
         data(){
             return{
                 role:"",
                 sex : "",
-                user_id : "",
-                comment:"",
+                user_id :"",
+                users:""
             }
         },
         components: {
             SubmitButton
         },
-        computed : {
-            commentText:{
-                // getter
-                get: function () {
-                    return this.comment.content;
-                },
-                // setter
-                set: function (newValue) {
-                    this.$store.state.commentText = newValue;
-                }
-            }
-        },
-        methods : {
-            ...mapActions(['putCommentEdit', 'deleteCommentDelete']),
-            changeToNormalMode(){
-                this.$store.state.commmentText = ""
-                window.location.href = 'http://localhost:8080/Activity';
-            }
-        },
+        computed : {},
+        methods : {},
         beforeCreate(){
             const userStorage = JSON.parse(sessionStorage.getItem('userToken'))
             if (userStorage === null) {
                 window.location.href = 'http://localhost:8080';
             }
-            this.$store.state.commentId = this.$route.params.id
         },
         beforeMount(){
             const axios = require('axios')
-            const moment = require('moment');
-            moment().format();
-            moment.locale('fr');
 
             let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
             this.sex = userStorage.sex
             this.user_id = userStorage.id
             this.role = userStorage.roleId
-            let comment_id = this.$route.params.id
 
-            axios.get(`http://localhost:3000/api/comment/${comment_id}`, {
+            axios.get('http://localhost:3000/api/param/', {
                 headers:{
                     'Authorization' : `Token ${userStorage.token}`
                 }
             })
-                .then(comment => {
-                    this.comment = comment.data
-                    this.comment.date = moment(this.comment.date).format('Do MMMM YYYY à HH:mm')
-                    console.log(this.comment.user.id)
-
-                    if (this.user_id != this.comment.user.id && this.role === 2){
-                        axios.delete(`http://localhost:3000/api/comment/${this.comment.id}`,{
-                            headers:{
-                                'Authorization' : `Token ${userStorage.token}`
-                            }
-                        })
-                        .then(response => {
-                            console.log(response);
-                            window.location.href = 'http://localhost:8080/Activity';
-                        })
-                        .catch(error => {
-                            console.log(`Quelque chose c'est mal passé.${error}`)
-                        })
-                    }
-                })
-                .catch(error => {
-                    console.log(error);
-                    alert(`Quelque chose c'est mal passé. Essayez à nouveau ${error}`)
-                });
+            .then(users => {
+                this.users = users.data
+            })
+            .catch(error => {
+                console.log(error);
+                alert(`Quelque chose c'est mal passé. Essayez à nouveau ${error}`)
+            });
         },
         mounted(){
-            document.title = `Modifier un commentaire`
+            document.title = 'Activité'
         }
     }
 </script>
 
 <template>
     <section>
-        <div class="post">
-            <form class="post">
-                <div class="line1">
-                    <router-link :to="{name: 'User', params: { id: comment.user.id }}">
-                        <img v-if="comment.user.image" :src="comment.user.image" title="Tableau de bord" class="user_img">
-                        <img v-else-if="comment.user.sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
-                        <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
-                    </router-link>
-                    <textarea name="post" rows="1" v-model="commentText"></textarea>
-                    <i v-if="comment.user.id === user_id" class="fas fa-trash" title="Supprimer" @click="deleteCommentDelete"></i>
-                    <i v-else-if="role === 2" class="fas fa-trash" title="Supprimer" @click="deleteCommentDelete"></i>
-                </div>
-                <br>
-
-                <div class="line2">
-                    <SubmitButton class="btn-post" @click="putCommentEdit" value="Changer"/>
-                    <SubmitButton class="btn-post" @click="changeToNormalMode" value="Annuler"/>
-                </div>
-            </form>
+        <div v-for="item in users" :key="item.id">
+            <router-link :to="{name: 'User', params: { id: item.id }}">
+                <img v-if="item.image" :src="item.image" title="Tableau de bord" class="user_img">
+                <img v-else-if="item.sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
+                <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
+            </router-link>
+            <div>
+                <h2>{{ item.username}}</h2>
+                <p v-if="item.roleId === 2">Admin</p>
+                <p v-else>Employé</p>
+            </div>
+            <p>{{ item.email }}</p>
+            <router-link :to="{name: 'Parametre', params: { id: item.id }}"><SubmitButton class="btn-post" value="Supprimer"/></router-link>
         </div>
     </section>
 </template>
@@ -277,6 +231,7 @@ textarea{
     margin-bottom: 5px;
     p{
         margin: 0;
+        align-self: center;
     }
 
 }
@@ -306,7 +261,7 @@ textarea{
     }
 }
 
-.fa-edit, .fa-trash{
+.fa-user-edit{
     margin-left: 20px;
     font-size: 1.8em;
     color: #d1515a;
@@ -315,7 +270,8 @@ textarea{
     }
 }
 
-form a {
+a {
+    text-decoration: none;
     cursor: pointer;
 }
 

@@ -17,6 +17,20 @@ schemaPassValid
 .has().not().spaces()
 .is().not().oneOf(['Passw0rd', 'Password123']);
 
+exports.getAllUsers = (req, res, next) => {
+  Param.findAll()
+  .then((posts) => {
+    res.status(200).json(posts);
+  })
+  .catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+    }
+  );
+};
+
 exports.getOneUserParam = (req, res, next) => {
   const id = req.params.id;
 

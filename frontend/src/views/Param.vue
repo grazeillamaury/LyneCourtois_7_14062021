@@ -6,7 +6,8 @@
         data(){
             return{
                 param : "",
-                user_id :""
+                user_pointer_id :"",
+                user_id : ""
             }
         },
         components: {
@@ -81,8 +82,9 @@
 
             let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
             this.user_id = userStorage.id
+            this.user_pointer_id = this.$route.params.id
 
-            axios.get(`http://localhost:3000/api/param/${this.user_id}`, {
+            axios.get(`http://localhost:3000/api/param/${this.user_pointer_id}`, {
                 headers:{
                     'Authorization' : `Token ${userStorage.token}`
                 }
@@ -115,7 +117,7 @@
             <p>{{param.username}}</p>
         </aside>
         <section>
-            <form>
+            <form v-if="user_id === user_pointer_id">
                 <h1>MON COMPTE</h1>
                 <aside>
                     <div>
@@ -138,7 +140,7 @@
             </form>
 
             <br>
-            <form>
+            <form v-if="user_id === user_pointer_id">
                 <h1>MOT DE PASSE</h1>
                     <div>
                         <label for="oldpasseword">Ancien mot-de-passe</label>
