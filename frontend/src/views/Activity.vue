@@ -1,4 +1,5 @@
 <script>
+    const axios = require('axios')
     import SubmitButton from "../components/SubmitButton.vue"
     import { mapActions } from "vuex"
     export default {
@@ -41,7 +42,6 @@
             }
         },
         beforeMount(){
-            const axios = require('axios')
             const moment = require('moment');
             moment().format();
             moment.locale('fr');

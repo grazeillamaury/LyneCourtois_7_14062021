@@ -58,15 +58,16 @@
             },
             ...mapActions(['userPostSignup']),
         },
-        mounted(){
-            document.title = 'Inscription'
-        },
         beforeCreate(){
+            //vérification si l'utilisateur est connecté
             const userStorage = JSON.parse(sessionStorage.getItem('userToken'))
             if (userStorage != null) {
                 window.location.href = 'http://localhost:8080/Activity';
             }
-        }
+        },
+        mounted(){
+            document.title = 'Inscription'
+        },
     }
 </script>
 
@@ -74,42 +75,49 @@
     <main>
         <h1>S'INSCRIRE</h1>
         <form>
+            <!-- Username -->
             <label for="username">Nom d'utilisateur*</label>
             <input type="text" id="username" name="username" placeholder="Tapez votre nom d'utilisateur" autofocus required v-model="username">
 
-            <label for="email-sign-up">Email*</label>
-            <input type="email" id="email-sign-up" name="email" placeholder="Taper votre adresse Email" required v-model="email">
+            <!-- Email -->
+            <label for="email">Email*</label>
+            <input type="email" id="email" name="email" placeholder="Taper votre adresse Email" required v-model="email">
 
+            <!-- Password One -->
             <label for="password-one">Mot de passe*</label>
-            <input type="password" id="password-one" placeholder="Tapez votre mot de passe" name="password_one" required v-model="passwordone">
+            <input type="password" id="password-one" name="password_one" placeholder="Tapez votre mot de passe" required v-model="passwordone">
 
+            <!-- Password Two -->
             <label for="password-two">Confirmation du mot de passe*</label>
             <input type="password" id="password-two" name="password_two" placeholder="Confirmer le mot de passe" required v-model="passwordtwo">
 
+            <!-- Sex -->
             <label for="genre">Genre*</label><br/>
             <div class="genre">
-                <input type="radio" name="genre" value="homme" id="genre" required @click="user_is_a_man"/> <label for="homme" class="genre-label">Homme</label> 
-                <input type="radio" name="genre" value="femme" id="genre" required @click="user_is_a_woman"/> <label for="femme" class="genre-label">Femme</label>
+                <div>
+                    <input type="radio" id="genre" name="genre" value="homme" required @click="user_is_a_man"/>
+                    <label for="genre">Homme</label>
+                </div>
+                <div>
+                    <input type="radio" id="genre" name="genre" value="femme" required @click="user_is_a_woman"/>
+                    <label for="genre">Femme</label>
+                </div>
             </div>
 
-            <SubmitButton @click="userPostSignup" value="S'inscrire"/>
+            <!-- Button -->
+            <SubmitButton class="btn-custom" @click="userPostSignup" value="S'inscrire"/>
         </form>
     </main>
 </template>
 
 <style scoped lang="scss">
 main{
-    margin: 30px;
+    margin: 0 30px;
 }
 
 h1{
     color:#ffffff;
-    margin-top: 60px;
-    margin-bottom: 70px;
-}
-
-#genre{
-    width: 10%;
+    margin: 60px 0 70px 0;
 }
 
 label{
@@ -118,20 +126,36 @@ label{
 }
 
 input{
-    color: black;
-    border: 3px #fd2d01 solid;
+    border: 3px #288825 solid;
     border-radius: 20px;
-    margin-top: 10px;
-    margin-bottom: 80px;
+    margin: 10px 0 80px 0;
     padding: 3px;
     width: 97%;
-    height: 75px;
+    height: 70px;
     font-size: 25px;
     &:invalid {
-        background-color:red;
+        border-color: #fd2d01;
     }
-
 }
+
+.genre{
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+#genre{
+    width: 25%;
+    margin: 30px;
+}
+
+.btn-custom{
+    margin: 40px 0 80px;
+    width: 300px;
+}
+
+
+
 @media screen and (min-width:1024px){
 
     main{
@@ -139,17 +163,15 @@ input{
     }
 
     input{
-        margin-top: 20px;
-        margin-bottom: 90px;
+        margin: 20px 0 90px 0;
         width: 100%;
         height: 55px;
     }
-    
-    #genre{
-        width: 5%;
-        margin: 50px;
-    }
 
+    .btn-custom{
+        margin: 100px 0 80px;
+        width: 250px;
+    }
 }
 
 </style>

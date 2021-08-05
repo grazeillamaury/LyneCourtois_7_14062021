@@ -8,7 +8,7 @@ export default {
     <header>
         <nav>
             <div>
-                <img src="../assets/icon.svg" class="icon"> 
+                <img src="../assets/icon.svg"> 
                 <p>Groupomania</p>
             </div>
             <div id="lien">
@@ -27,16 +27,15 @@ p{
 
 header{
     background-color: #122542;
+    padding: 30px;
 }
 
 nav {
-    padding: 30px;
     a{
         font-size: 25px;
         color: white;
-        height: 80px;
         text-decoration: none;
-        margin: 20px;
+        margin: 0 20px;
         &:hover {
             color: #d1515a;
             border-bottom: 5px black solid;
@@ -48,11 +47,15 @@ nav {
     }
 }
 
-.icon{
+img{
     width:50px;
 }
 
 #lien {
     text-align: right;
+}
+
+.router-link-exact-active{
+    border-bottom: 3px #d1515a solid;
 }
 </style>

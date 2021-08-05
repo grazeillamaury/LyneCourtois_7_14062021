@@ -22,9 +22,16 @@ export default new Vuex.Store({
 			username : "",
 			imageUser:"",
 			email : "",
+			biography:"",
 			oldpassword:"",
 			newpasswordone : "",
 			newpasswordtwo : ""
+		},
+		user:{
+			username:"",
+			sex:"",
+			image:"",
+			role:""
 		},
 		imagePost : "",
 		postId : "",
@@ -334,15 +341,18 @@ export default new Vuex.Store({
 		putParamEdit(context){
 			let lettersRg = context.state.lettersRg
 			let emailRg = context.state.emailRg
+			let textRg = context.state.postsRg
 
 			let username = context.state.param.username
 			let image = context.state.param.imageUser
 			let email = context.state.param.email
+			let biography = context.state.param.biography
 
 			let username_valid = lettersRg.test(username)
+			let biography_valid = textRg.test(biography)
 			let email_valid = emailRg.test(email)
 
-			if (username_valid && email_valid) {
+			if (username_valid && email_valid && biography_valid) {
 
 				let formData = new FormData()
 				let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
@@ -350,8 +360,11 @@ export default new Vuex.Store({
 
 				let param = {
 					username : username,
-					email : email
+					email : email,
+					biography : biography
 				}
+
+				console.log(param)
 
 				formData.append('content', JSON.stringify(param));
 				if (image) {

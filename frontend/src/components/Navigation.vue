@@ -1,4 +1,5 @@
 <script>
+	const axios = require('axios')
 	import { mapActions } from "vuex"
 	export default {
 		name: 'Navigation',
@@ -6,32 +7,34 @@
 			return{
 				sex : "",
 				role : "",
-				user_id : "",
-				user:""
+				id : "",
+				img:""
 			}
 		},
 		methods : {
 			...mapActions(['userSignout']),
 		},
 		beforeMount(){
-			const axios = require('axios')
 			let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
-			this.sex = userStorage.sex
-			this.role = userStorage.roleId
-			this.user_id = userStorage.id
+			this.id = userStorage.id
 
-			axios.get(`http://localhost:3000/api/param/${this.user_id}`, {
+			//récupération des informations de l'utilisateur actif
+			axios.get(`http://localhost:3000/api/param/${this.id}`, {
                 headers:{
                     'Authorization' : `Token ${userStorage.token}`
                 }
             })
                 .then(param => {
-                    console.log
-                    this.user = param.data
+                    this.img = param.data.image
+                    this.sex = param.data.sex
+                    this.role = param.data.roleId
 
+                    this.$store.state.user.username = param.data.username
+                    this.$store.state.user.image = param.data.image
+                    this.$store.state.user.sex = param.data.sex
+                    this.$store.state.user.role = param.data.roleId
                 })
                 .catch(error => {
-                    console.log(error);
                     alert(`Quelque chose c'est mal passé. Essayez à nouveau ${error}`)
                 });
 		}
@@ -42,47 +45,39 @@
 	<div>
 		<nav>
 			<div>
-				<router-link :to="{name: 'User', params: { id: user_id }}">
-                    <img v-if="user.image" :src="user.image" title="Tableau de bord" class="user_img">
-                    <img v-else-if="user.sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
-                    <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
+				<!-- User Img -->
+				<router-link :to="{name: 'User', params: { id: id }}" class="user_img">
+                    <img v-if="img" :src="img" title="Tableau de bord">
+                    <img v-else-if="sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord">
+                    <img v-else src="../assets/user_female.svg" title="Tableau de bord">
                 </router-link>
+
+                <!-- Log out -->
 				<i class="fas fa-sign-out-alt" title="Déconnexion" @click="userSignout"></i>
 
-                <router-link :to="{name: 'Parametre', params: { id: user_id }}"><i class="fas fa-tools" title="Paramètres"></i></router-link>
+				<!-- Params -->
+                <router-link :to="{name: 'Parametre', params: { id: id }}"><i class="fas fa-tools" title="Paramètres"></i></router-link>
 			</div>
+
+			<!-- Activity -->
 			<router-link to="/Activity"><i class="fas fa-globe" title="Activité"></i></router-link>
+
+			<!-- All Users only for admin -->
 			<router-link to="/User" v-if="role === 2"><i class="fas fa-users" title="Tous les utilisateurs"></i></router-link>
 		</nav>
 		<main>
+			<!-- Header -->
 			<div id="bande">
 				<img src="../assets/icon-left-font.svg">
+				<slot name="user_img"></slot>
 			</div>
-			<slot><p>Bonjour</p></slot>
+			<slot name="page"><p>Bonjour</p></slot>
 		</main>
 	</div>
 </template>
 
 <style scoped lang="scss">
-h2{
-    color: #fd2d01;
-    font-size: 1.5em;
-    font-weight: 100;
-}
-
-/*banderelle*/
-#bande{
-	background-color: #122542;
-	display: flex;
-	justify-content: center;
-	margin-bottom: 40px;
-	img{
-		width: 450px;
-	}
-}
-
 /*navbar*/
-
 nav{
 	padding: 25px;
 	display: flex;
@@ -96,18 +91,6 @@ nav{
 		align-items: center;
 		background-color: rgba(253, 45, 1, 0.3);
 		border-radius: 50px;
-		img{
-			width: 40px;
-			height: auto;
-			background-color: #ffd7d7;
-			padding: 2px;
-			border-radius: 100px;
-			border: 2px #d1515a solid;
-			cursor: pointer;
-			&:hover{
-				border: 2px #ffd7d7 solid;
-			}
-		}
 	}
 	i{
 		font-size: 1.5em;
@@ -119,26 +102,48 @@ nav{
     }
 }
 
+.user_img{
+	overflow: hidden;
+	width: 40px;
+	height: 40px;
+	border-radius: 100px;
+	border: 2px #d1515a solid;
+	background-color: #ffd7d7;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 2px;
+	img{
+		width: 50px;
+		height: auto;
+	}
+	&:hover{
+		border: 2px #ffd7d7 solid;
+	}
+}
+
 .fa-globe, .fa-users{
 	color: #122542;
 	font-size: 2.4em;
-	padding-left: 20px;
+	margin-left: 20px;
 	&:hover{
 		color: #d1515a;
+	}
+}
+
+/*header*/
+#bande{
+	background-color: #122542;
+	display: flex;
+	justify-content: center;
+	margin-bottom: 40px;
+	img{
+		width: 85%;
 	}
 }
 @media screen and (min-width:1024px){
 	main{
 		margin-left: 6.5%;
-	}
-
-	/*banderelle*/
-	#bande{
-		margin-bottom: 5%;
-		img{
-			padding: 1%;
-			width: 30%;
-		}
 	}
 
 	/*navbar*/
@@ -154,20 +159,34 @@ nav{
 			width: 65%;
 			padding: 7px;
 			padding-bottom: 30px;
-			img{
-				width: 90%;
-			}
 			.fas{
-				padding-top: 20px;
+				margin-top: 20px;
 			}
 		}
     }
 
+    .user_img{
+		width: 60px;
+		height: 60px;
+		img{
+			width: 70px;
+		}
+	}
+
     .fa-globe, .fa-users{
         font-size: 3em;
-        padding: 7px;
-        padding-top: 20px;
+        margin: 0;
+        margin-top: 20px;
     }
+
+	/*banderelle*/
+	#bande{
+		margin-bottom: 5%;
+		padding: 1%;
+		img{
+			width: 30%;
+		}
+	}
 }
 
 </style>

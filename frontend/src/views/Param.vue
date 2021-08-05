@@ -34,6 +34,16 @@
                     this.$store.state.param.email = newValue;
                 }
             },
+            biography:{
+                // getter
+                get: function () {
+                    return this.$store.state.param.biography;
+                },
+                // setter
+                set: function (newValue) {
+                    this.$store.state.param.biography = newValue;
+                }
+            },
             oldpassword:{
                 // getter
                 get: function () {
@@ -94,6 +104,7 @@
 
                 this.$store.state.param.username = this.param.username
                 this.$store.state.param.email = this.param.email
+                this.$store.state.param.biography = this.param.biography
 
                 this.$store.state.user_id_delete = this.param.id
             })
@@ -117,22 +128,28 @@
             <p>{{param.username}}</p>
         </aside>
         <section>
-            <form v-if="user_id === user_pointer_id">
+            <form v-if="user_id == user_pointer_id">
                 <h1>MON COMPTE</h1>
                 <aside>
                     <div>
-                        <label for="text">Nom d'utilisateur</label>
+                        <label for="nom_d'utilisateur">Nom d'utilisateur</label>
                         <br>
                         <input type="text" name="nom_d'utilisateur" id="nom_d'utilisateur" placeholder="Nom d'utilisateur" required v-model="username">
                     </div>
 
                     <div>
-                        <label for="email-sign-in">Email</label>
+                        <label for="email">Email</label>
                         <br>
-                        <input type="email" name="email" id="email-sign-in" placeholder="Adresse Email" required v-model="email">
+                        <input type="email" name="email" id="email" placeholder="Adresse Email" required v-model="email">
                     </div>
 
                 </aside>
+
+                <div>
+                    <label for="biography">Biographie</label>
+                    <br>
+                    <input type="text" name="biography" id="biography" placeholder="Votre Biographie" required v-model="biography">
+                </div>
 
                 <input @change="addImage" type="file" id="myfile" name="myfile" accept= "image/*">
 
@@ -140,7 +157,7 @@
             </form>
 
             <br>
-            <form v-if="user_id === user_pointer_id">
+            <form v-if="user_id == user_pointer_id">
                 <h1>MOT DE PASSE</h1>
                     <div>
                         <label for="oldpasseword">Ancien mot-de-passe</label>

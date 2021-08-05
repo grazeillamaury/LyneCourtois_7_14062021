@@ -54,7 +54,8 @@ exports.modifyParam = (req, res, next) => {
 
   const param = {
     username : xss(paramObject.username),
-    email : xss(paramObject.email)
+    email : xss(paramObject.email),
+    biography : xss(paramObject.biography)
   };
 
   if (req.file) {

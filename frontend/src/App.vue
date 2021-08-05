@@ -7,7 +7,9 @@
 		</div>
 
 		<Navigation v-else>
-			<router-view :key="$route.fullPath"/>
+			<template v-slot:page>
+          <router-view :key="$route.fullPath"/>
+      </template>
 		</Navigation>
 	</div>
 </template>
@@ -22,10 +24,6 @@ body{
 	font-family: arial;
 	background-color:#02070d;
 	font-size: 15px;
-}
-
-p{
-	color: white;
 }
 
 </style>
