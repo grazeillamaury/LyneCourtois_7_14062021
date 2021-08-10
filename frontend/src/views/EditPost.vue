@@ -5,11 +5,11 @@
         name: "Login",
         data(){
             return{
+                user_id :"",
                 role:"",
                 sex : "",
+                img : "",
                 post : "",
-                user:"",
-                user_id : "",
                 editMode: 0,
             }
         },
@@ -20,11 +20,11 @@
             commentText:{
                 // getter
                 get: function () {
-                    return this.$store.state.commentText;
+                    return this.$store.state.comment.text;
                 },
                 // setter
                 set: function (newValue) {
-                    this.$store.state.commentText = newValue;
+                    this.$store.state.comment.text = newValue;
                 }
             },
             postText:{
@@ -34,7 +34,7 @@
                 },
                 // setter
                 set: function (newValue) {
-                    this.$store.state.postText = newValue;
+                    this.$store.state.post.text = newValue;
                 }
             }
         },
@@ -45,11 +45,11 @@
             },
             changeToNormalMode(){
                 this.editMode = 0
-                this.$store.state.postText = ""
-                this.$store.state.imagePost = ""
+                this.$store.state.post.text = ""
+                this.$store.state.post.img = ""
             },
             addImage(event) {
-                this.$store.state.imagePost = event.target.files[0]
+                this.$store.state.post.img = event.target.files[0]
             }
         },
         beforeCreate(){
@@ -57,21 +57,25 @@
             if (userStorage === null) {
                 window.location.href = 'http://localhost:8080';
             }
-            this.$store.state.postId = this.$route.params.id
-            this.$store.state.commentText = ""
+            this.$store.state.post.id = this.$route.params.id
+            this.$store.state.comment.text = ""
         },
         beforeMount(){
+            //Init
+            const userStorage = JSON.parse(sessionStorage.getItem('userToken'))
             const axios = require('axios')
             const moment = require('moment');
             moment().format();
             moment.locale('fr');
 
-            let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
+            //Fill in the data
             this.sex = userStorage.sex
-            this.user_id = userStorage.id
             this.role = userStorage.roleId
+            this.user_id = userStorage.id
+            this.img = userStorage.img
             let post_id = this.$route.params.id
 
+            //Get the post
             axios.get(`http://localhost:3000/api/post/${post_id}`, {
                 headers:{
                     'Authorization' : `Token ${userStorage.token}`
@@ -89,24 +93,9 @@
                     this.post.commentsNum = commentCount
 
                 })
-                .catch(error => {
-                    console.log(error);
+                .catch(() => {
                     alert(`Ce post n'existe pas`)
                     window.location.href = 'http://localhost:8080/Activity';
-                });
-
-            axios.get(`http://localhost:3000/api/param/${this.user_id}`, {
-                headers:{
-                    'Authorization' : `Token ${userStorage.token}`
-                }
-            })
-                .then(param => {
-                    this.user = param.data
-
-                })
-                .catch(error => {
-                    console.log(error);
-                    alert(`Quelque chose c'est mal passé. Essayez à nouveau ${error}`)
                 });
         },
         mounted(){
@@ -116,337 +105,411 @@
 </script>
 
 <template>
-    <section>
-        <div class="post">
-            <div v-if="editMode === 0">
-                <div class="line1">
-                    <div class="user">
-                        <router-link :to="{name: 'User', params: { id: post.user.id }}">
-                            <img v-if="post.user.image" :src="post.user.image" title="Tableau de bord" class="user_img" >
-                            <img v-else-if="post.user.sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
-                            <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
-                        </router-link>
-                        <div>
-                            <h2>{{post.user.username}}</h2>
-                            <p>{{post.date}}</p>
-                        </div>
-                    </div>
+    <main>
+        <div v-if="editMode === 0" class="post">
+            <!-- User info and Edit and Delete buttons -->
+            <div class="user">
+
+                <!-- User info -->
+                <div class="user_info">
+                    <router-link :to="{name: 'User', params: { id: post.user.id }}" class="user_img">
+                        <img v-if="post.user.image" :src="post.user.image" title="Tableau de bord" >
+                        <img v-else-if="post.user.sex === 'M'" src="../assets/user_male.svg" id="no_image_user" title="Tableau de bord">
+                        <img v-else src="../assets/user_female.svg" id="no_image_user" title="Tableau de bord">
+                    </router-link>
                     <div>
-                        <i v-if="post.user.id === user_id" @click="changeToEditMode" class="fas fa-edit" title="Modifier"></i>
-                        <i v-if="post.user.id === user_id" class="fas fa-trash" title="Supprimer" @click="deletePostDelete"></i>
-                        <i v-else-if="role === 2" class="fas fa-trash" title="Supprimer" @click="deletePostDelete"></i>
+                        <h2>{{post.user.username}}</h2>
+                        <p>{{post.date}}</p>
                     </div>
                 </div>
 
-                <p class="text">{{post.content}}</p>
-
-                <img v-if="post.image" :src="post.image" class="post_img" alt="aucune description disponible">
-
-                <div class="share_comment">
-                    <p><i class="fas fa-comments" title="Commenter"></i>{{ post.commentsNum }}</p>
-                </div>
-                <div class="comments">
-                    <div class="comment" v-for="comment in post.comments" :key="comment.id">
-                        <div class="user_comment">
-                            <div class="user_comment_info">
-                                <router-link :to="{name: 'User', params: { id: comment.user.id }}">
-                                    <img v-if="comment.user.image" :src="comment.user.image" title="Tableau de bord" class="user_img" >
-                                    <img v-else-if="comment.user.sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
-                                    <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
-                                </router-link>
-                                <div>
-                                    <h2>{{comment.user.username}}</h2>
-                                    <p>{{comment.date}}</p>
-                                </div>
-                            </div>
-                            <p>{{ comment.content }}</p>
-                            <div>
-                                <router-link :to="{name: 'Comment', params: { id: comment.id },}" v-if="comment.user.id === user_id">
-                                    <i class="fas fa-user-edit" title="Modifier ou supprimer"></i>
-                                </router-link>
-                                <router-link :to="{name: 'Comment', params: { id: comment.id },}" v-else-if="role === 2">
-                                    <i class="fas fa-trash" title="Supprimer"></i>
-                                </router-link>
-                            </div>
-                        </div>
-                    </div>
-                    <form class="form_comment">
-                        <div class="line1">
-                            <router-link :to="{name: 'User', params: { id: user_id }}">
-                                <img v-if="user.image" :src="user.image" title="Tableau de bord" class="user_img" >
-                                <img v-else-if="sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
-                                <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
-                            </router-link>
-
-                            <textarea name="post" placeholder="Écrivez quelque chose ici ..." rows="1" v-model="commentText"></textarea>
-                        </div>
-                        <SubmitButton class="btn-post" @click="postCommentCreate" value="Publier"/>
-                    </form>
+                <!-- Edit and Delete buttons -->
+                <div class="edit_post">
+                    <i v-if="post.user.id === user_id" @click="changeToEditMode" class="fas fa-edit" title="Modifier"></i>
+                    <i v-if="post.user.id === user_id" class="fas fa-trash" title="Supprimer" @click="deletePostDelete"></i>
+                    <i v-else-if="role === 2" class="fas fa-trash" title="Supprimer" @click="deletePostDelete"></i>
                 </div>
             </div>
-            <form class="post" v-else-if="editMode === 1">
-                <div class="line1">
-                    <router-link :to="{name: 'User', params: { id: user_id }}">
-                        <img v-if="user.image" :src="user.image" title="Tableau de bord" class="user_img" >
-                        <img v-else-if="sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
-                        <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
-                    </router-link>
-                    <textarea name="post" rows="1" v-model="postText"></textarea>
-                </div>
-                <br>
 
-                <div class="line2">
-                    <div>
-                        <label for="myfile"><i class="fas fa-photo-video"></i> Photo / Vidéo</label>
-                        <br>
-                        <input @change="addImage" type="file" id="myfile" name="myfile" accept= "image/*">
+            <!-- Content -->
+            <p class="content">{{post.content}}</p>
+            <img v-if="post.image" :src="post.image" class="post_img" alt="aucune description disponible">
+
+            <div class="add_comment">
+                <p><i class="fas fa-comments" title="Commenter"></i>{{ post.commentsNum }}</p>
+            </div>
+
+            <!-- Comments -->
+            <div class="comments">
+
+                <!-- Base Comments -->
+                <div class="comment" v-for="comment in post.comments" :key="comment.id">
+
+                    <!-- User info -->
+                    <div class="user_comment">
+                        <router-link :to="{name: 'User', params: { id: comment.user.id }}" class="user_img">
+                            <img v-if="comment.user.image" :src="comment.user.image" title="Tableau de bord">
+                            <img v-else-if="comment.user.sex === 'M'" src="../assets/user_male.svg" id="no_image_user" title="Tableau de bord">
+                            <img v-else src="../assets/user_female.svg" id="no_image_user" title="Tableau de bord">
+                        </router-link>
+                        <div>
+                            <h2>{{comment.user.username}}</h2>
+                            <p>{{comment.date}}</p>
+                        </div>
                     </div>
-                    <SubmitButton class="btn-post" @click="putPostEdit" value="Changer"/>
-                    <SubmitButton class="btn-post" @click="changeToNormalMode" value="Annuler"/>
+
+                    <!-- Comment content -->
+                    <p>{{ comment.content }}</p>
+
+                    <!-- Comment edit -->
+                    <router-link :to="{name: 'Comment', params: { id: comment.id },}">
+                        <i class="fas fa-user-edit" title="Modifier ou supprimer" v-if="comment.user.id === user_id"></i>
+                        <i class="fas fa-trash" title="Supprimer" v-else-if="role === 2"></i>
+                    </router-link>
                 </div>
-            </form>
+
+                <!-- Comment Form -->
+                <form class="form_comment">
+                    <!-- User info and text -->
+                    <div class="text">
+                        <router-link :to="{name: 'User', params: { id: user_id }}" class="user_img">
+                            <img v-if="img" :src="img" title="Tableau de bord">
+                            <img v-else-if="sex === 'M'" src="../assets/user_male.svg" id="no_image_user" title="Tableau de bord">
+                            <img v-else src="../assets/user_female.svg" id="no_image_user" title="Tableau de bord">
+                        </router-link>
+
+                        <textarea name="post" placeholder="Écrivez quelque chose ici ..." rows="1" v-model="commentText"></textarea>
+                    </div>
+
+                    <!-- Button -->
+                    <SubmitButton class="btn-custom" @click="postCommentCreate" value="Publier"/>
+                </form>
+            </div>
         </div>
-    </section>
+
+        <!-- Form -->
+        <form class="post" v-else-if="editMode === 1">
+
+            <!-- User Image and text -->
+            <div class="text">
+                <router-link :to="{name: 'User', params: { id: user_id }}" class="user_img">
+                    <img v-if="img" :src="img" title="Tableau de bord">
+                    <img v-else-if="sex === 'M'" src="../assets/user_male.svg" id="no_image_user" title="Tableau de bord">
+                    <img v-else src="../assets/user_female.svg" id="no_image_user" title="Tableau de bord">
+                </router-link>
+                <textarea name="post" rows="1" v-model="postText"></textarea>
+            </div>
+
+            <!-- Image unplaod and buttons -->
+            <div class="picture">
+                <div>
+                    <label for="myfile"><i class="fas fa-photo-video"></i> Photo / Vidéo</label>
+                    <br>
+                    <input @change="addImage" type="file" id="myfile" name="myfile" accept= "image/*">
+                </div>
+
+                <SubmitButton class="btn-custom" @click="changeToNormalMode" value="Annuler"/>
+                <SubmitButton class="btn-custom" @click="putPostEdit" value="Modifier"/>
+            </div>
+        </form>
+    </main>
 </template>
 
 <style scoped lang="scss">
-h2{
-    color: #fd2d01;
-    font-size: 1.5em;
-    font-weight: 100;
+main{
+    margin-bottom: 3%;
 }
 
 .post{
     background-color: #122542;
-    margin-bottom: 40px;
-    padding: 10px 20px 10px 20px;
+    padding: 10px 20px;
     border-radius: 30px;
-    margin-left: 4%;
-    margin-right: 4%;
+    margin : 0 4%;
     display: flex;
     flex-direction: column;
-    &_img{
-        margin: auto;
-        margin-top: 10px;
-        width: 50%;
+}
+
+.user_img{
+    overflow: hidden;
+    width: 50px;
+    height: 50px;
+    border-radius: 100px;
+    border: 2px #d1515a solid;
+    background-color: #ffd7d7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    img{
+        width: 60px;
         height: auto;
     }
-}
-
-.line1{
-    display: flex;
-    justify-content: space-between;
-}
-
-.user{
-    display: flex;
-    width: 60%;
-    padding-bottom: 10px;
-    border-bottom: 3px #d1515a solid;
-    div{
-        padding-left: 10px;
-        padding-top: 2%;
-    }
-    p{
-        color: #ffd7d7;
-        font-size: 1em;
-        padding-top: 5%; 
-    }
-    &_img{
-        width: 40px;
-        height: 40px;
-        background-color: #ffd7d7;
-        padding: 2px;
-        border-radius: 100px;
-        border: 2px #d1515a solid;
+    &:hover{
+        border: 2px #ffd7d7 solid;
     }
 }
 
-textarea{
-    color: #ffd7d7;
-    background-color: rgba(2, 7, 13, 0.5);
-    border: 2px #fd2d01 solid;
-    border-radius: 40px;
-    padding: 10px 10px 5px 10px;
-    margin-left: 10px;
+#no_image_user{
     width: 100%;
-    font-size: 1.2em;
-    font-family: Arial;
 }
 
-.text{
-    padding-top: 2%;
-    padding-bottom: 2%;
-    color: white;
-    font-size: 1.1em;
-    line-height: 1.5em;
-    letter-spacing: 0.02em;
-    border-bottom: 2px rgba(255, 255, 255, 0.1) solid;
+a {
+    text-decoration: none;
+    cursor: pointer;
 }
 
-.share_comment{
-    padding: 10px;
-    width: 16%;
-    display: flex;
-    justify-content: space-between;
-    p{
-        font-size: 1.7em;
-        color: #fd2d01;
-        display: flex;
-        align-items: center;
+/*Post*/
+    .post_img{
+        margin: auto;
+        margin-top: 1%;
+        width: 100%;
     }
-    .fas{
+
+    h2{
+        color: #fd2d01;
+        font-weight: 100;
+    }
+
+    .user{
+        display: flex;
+        justify-content: space-between;
+        &_info{
+            display: flex;
+            align-items: center;
+            width: 80%;
+            padding-bottom: 10px;
+            border-bottom: 3px #d1515a solid;
+            div{
+                padding-left: 10px;
+            }
+            p{
+                color: #ffd7d7;
+                padding-top: 5%; 
+            }
+        }
+    }
+
+    .edit_post{
+        width: 10%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .fa-user-edit, .fa-edit, .fa-trash{
+        font-size: 1.8em;
         color: #d1515a;
-        font-size: 1.5em;
-        padding-right: 10px;
         &:hover{
             color: #ffd7d7;
         }
     }
-}
 
-.line2{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    label{
-        display: flex;
-        align-items: center;
+    .content{
+        padding: 5% 0;
+        color: white;
         font-size: 1.1em;
-        color: #fd2d01;
+        line-height: 1.5em;
+        letter-spacing: 0.02em;
+        border-bottom: 2px rgba(255, 255, 255, 0.1) solid;
     }
-    i{
-        margin-right: 10px;
-        color: #d1515a;
-        font-size: 30px;
-    }
-}
 
-.btn-post{
-    width: 150px;
-    height: 40px;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #ffffff;
-    background-color: #d1515a;
-    border-radius: 37px;
-    border:none;
-    box-shadow: -4px 4px 10px black;
-    margin: 25px 0 2px 0;
-    &:hover{
-        margin-bottom: 0px;
-        margin-top: 27px;
-        color: #d1515a;
-        background-color: #ffd7d7;
-        border-radius: 37px;
-        border:none;
-        box-shadow: none;
-    }
-}
-
-.comments{
-    border: 4px #d1515a solid;
-    border-radius: 10px;
-    margin-top: 10px;
-    padding: 1% 2%;
-    p{
-        font-size: 1.05em;
-        width: 80%;
-    }
-}
-
-.comment{
-    padding-bottom: 1%;
-    margin-bottom: 5%;
-    border-bottom: 2px #ffd7d7 solid;
-    a{
-        margin-left: 2%;
-        color: #ffd7d7;
-        &:hover{
-            color: #f76a4c;
+    .add_comment{
+        padding: 0 0 10px 10px;
+        margin-top: 2%;
+        p{
+            font-size: 1.7em;
+            color: #fd2d01;
+            display: flex;
+            align-items: center;
+        }
+        .fas{
+            color: #d1515a;
+            font-size: 1.5em;
+            padding-right: 10px;
+            &:hover{
+                color: #ffd7d7;
+            }
         }
     }
-}
 
-.user_comment{
-    display: flex;
-    margin-bottom: 5px;
-    p{
-        margin: 0;
+    /*Comments*/
+        .comments{
+            border: 4px #d1515a solid;
+            border-radius: 10px;
+            margin-top: 10px;
+            padding: 3% 2%;
+            p{
+                font-size: 1.05em;
+            }
+        }
+
+        .comment{
+            display: flex;
+            align-items: center;
+            padding-bottom: 2%;
+            margin-bottom: 7%;
+            border-bottom: 2px #ffd7d7 solid;
+            p{
+                color: white;
+                margin: 0 4%;
+                width: 60%;
+                word-wrap: break-word;   
+            }
+        }
+
+        .user_comment{
+            display: flex;
+            div{
+                margin-left: 10px;
+                width: min-content;
+                display: none;
+            }
+            p{
+                color: #ffd7d7;
+                font-size: 0.9em;
+                padding-top: 5%;
+                margin: 0;
+
+            }
+            .user_img{
+                width: 40px;
+                height: 40px;
+                img{
+                    width: 50px;
+                }
+            }
+        }
+
+        .form_comment .text{
+            display: flex;
+            flex-direction: column;
+            textarea{
+                margin: 0;
+                margin-top: 10px;
+                width: auto;
+                font-size: 1.1em;
+                padding: 5%;
+                height: 40px;
+            }
+        }
+
+
+
+/*Form*/
+    .text, .picture{
+        display: flex;
     }
 
-}
-
-.user_comment_info{
-    display: flex;
-    width: 15%;
-    margin-right: 1%;
-    padding-bottom: 10px;
-    border-bottom: 3px #d1515a solid;
-    img{
-        width: 40px;
-        height: 40px;
-        background-color: #ffd7d7;
-        padding: 2px;
-        border-radius: 100px;
-        border: 2px #d1515a solid;
-    }
-    div{
-        padding-left: 10px;
-        padding-top: 2%;
-    }
-    p{
-        color: #ffd7d7;
-        font-size: 1em;
-        padding-top: 5%; 
-    }
-}
-
-.fa-edit, .fa-trash{
-    margin-left: 20px;
-    font-size: 1.8em;
-    color: #d1515a;
-    &:hover{
-        color: #ffd7d7;
-    }
-}
-
-form a {
-    cursor: pointer;
-}
-
-@media screen and (min-width:1024px){
-    .post{
-        margin-right: 20%;
-        margin-left: 20%;
-    }
-
-    .line1 img{
-        width: 60px;
-        height: 60px;
-    }
-
-    .line2 label{
-        font-size: 1.5em;
+    .picture{
+        flex-wrap: wrap;
+        justify-content: space-between;
+        margin-top: 10px;
+        label{
+            display: flex;
+            align-items: center;
+            font-size: 1.1em;
+            color: #fd2d01;
+        }
         i{
-            font-size: 40px;
-        }   
+            margin-right: 10px;
+            color: #d1515a;
+            font-size: 30px;
+        }
     }
 
     textarea{
-    border-radius: 40px;
-    margin-left: 10px;
-    padding-left: 30px;
-    padding-right: 20px;
-    padding-top: 20px;
-    padding-bottom: 15px;
-    font-size: 1.5em;
+        color: #ffd7d7;
+        background-color: rgba(2, 7, 13, 0.5);
+        border: 2px #fd2d01 solid;
+        border-radius: 40px;
+        padding: 10px 10px 5px 10px;
+        margin-left: 10px;
+        width: 70%;
+        font-size: 1.2em;
+        font-family: Arial;
     }
 
-    .btn-post{
-        width: 230px;
-        height: 50px;
-        font-size: 1.5em;
+    .btn-custom{
+        width: 45%;
+        height: 40px;
+        font-size: 1.2em;
+        font-weight: bold;
+        background-color: #d1515a;
+        box-shadow: -4px 4px 10px black;
+        margin: 25px 0 2px 0;
+        &:hover{
+            margin-bottom: 0px;
+            margin-top: 27px;
+            color: #d1515a;
+            background-color: #ffd7d7;
+            box-shadow: none;
+        }
     }
+
+@media screen and (min-width:1024px){
+    .post{
+        margin : 0 20%;
+    }
+
+    /*Post*/
+        .post_img{
+            margin-top: 2%;
+            width: 60%;
+        }
+
+        .edit_post{
+            width: 8%;
+            flex-direction: row;
+        }
+
+        .content{
+            padding: 2% 0;
+        }
+
+        /*Comments*/
+            .comments{
+                padding: 1% 2%;
+            }
+
+            .comment{
+                padding-bottom: 1%;
+                margin-bottom: 3%;
+                p{
+                    width: 80%;
+                }
+            }
+
+            .user_comment div{
+                display: block;
+            }
+
+            .form_comment .text{
+                flex-direction: row;
+                textarea{
+                    margin: 0;
+                    margin-left: 10px;
+                    width: 70%;
+                    padding: 2%;
+                }
+            }
+
+    /*Form*/
+        .picture{
+            width: 70%;
+            label{
+                font-size: 1.5em;
+            }
+            i{
+                font-size: 40px;
+            }
+        }
+
+        textarea{
+            width: 90%;
+        }
+
+        .btn-custom{
+            width: 200px;
+        }
 }
 </style>

@@ -59,7 +59,7 @@
             ...mapActions(['userPostSignup']),
         },
         beforeCreate(){
-            //vérification si l'utilisateur est connecté
+            //If user connected
             const userStorage = JSON.parse(sessionStorage.getItem('userToken'))
             if (userStorage != null) {
                 window.location.href = 'http://localhost:8080/Activity';

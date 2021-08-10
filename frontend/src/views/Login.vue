@@ -34,7 +34,7 @@
             ...mapActions(['userPostLogin']),
         },
         beforeCreate(){
-            //vérification si l'utilisateur est connecté
+            //If user connected
             let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
             if (userStorage != null) {
                 window.location.href = 'http://localhost:8080/Activity';
@@ -43,28 +43,29 @@
             userStorage = JSON.parse(sessionStorage.getItem('user'))
             let emailRg = /^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,4}$/
 
-            //Si inscription alors connection automatique
+            //If signup => automatic connection
             if (userStorage != null) {
                 let email_valid = emailRg.test(userStorage.email)
 
-                //Si l'email valid alors connection
+                //if email valid
                 if (email_valid) {
                     axios.post('http://localhost:3000/api/auth/login', {
                         password: userStorage.password,
                         email: userStorage.email,
                     })
                     .then(response => {
-                        //suppression de sessionStorage "user"
+                        //Delete sessionStorage "user"
                         sessionStorage.removeItem('user');
 
                         let user = {
                             id : response.data.userId,
                             roleId : response.data.roleId,
                             sex: response.data.sex,
+                            img: response.data.image,
                             token : response.data.token
                         }
 
-                        //envois des infos requis dans le sessionStorage puis redirection
+                        //send info in sessionStorage and redirection
                         let userItems = JSON.stringify(user)
                         sessionStorage.setItem('userToken', userItems)
                         window.location.href = 'http://localhost:8080/Activity'
@@ -73,14 +74,13 @@
                         alert(`Le mot de passe ou l'utilisateur n'est pas valide. ${error}`)
                     });
                 }
-                //Sinon alert
                 else {
                     alert("Le formulaire n'est pas valide. Vérifer que l'adresse mail est valide")
                 }
             }
         },
         mounted(){
-            document.title = 'Login'
+            document.title = 'Connexion'
         }
     }
 </script>
@@ -119,7 +119,7 @@ label{
 }
 
 input{
-    border: 3px #288825 solid;
+    border: 3px #1f71ee solid;
     border-radius: 20px;
     margin: 10px 0 80px 0;
     padding: 3px;

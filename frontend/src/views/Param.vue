@@ -82,6 +82,7 @@
             }
         },
         beforeCreate(){
+            //If user connected
             const userStorage = JSON.parse(sessionStorage.getItem('userToken'))
             if (userStorage === null) {
                 window.location.href = 'http://localhost:8080';
@@ -94,6 +95,7 @@
             this.user_id = userStorage.id
             this.user_pointer_id = this.$route.params.id
 
+            //get Param
             axios.get(`http://localhost:3000/api/param/${this.user_pointer_id}`, {
                 headers:{
                     'Authorization' : `Token ${userStorage.token}`
@@ -109,88 +111,89 @@
                 this.$store.state.user_id_delete = this.param.id
             })
             .catch(error => {
-                console.log(error);
                 alert(`Quelque chose c'est mal passé. Essayez à nouveau ${error}`)
             });
         },
         mounted(){
-            document.title = 'Activité'
+            document.title = 'Paramètre'
         }
     }
 </script>
 
 <template>
-    <div class="container">
-        <aside class="param-profil">
-            <img v-if="param.image" :src="param.image" title="Tableau de bord" class="profil">
-            <img v-else-if="param.sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="profil">
-            <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="profil">
+    <main>
+        <!-- User Image and Username -->
+        <aside>
+            <div class="user_img">
+                <img v-if="param.image" :src="param.image" title="Tableau de bord">
+                <img v-else-if="param.sex === 'M'" src="../assets/user_male.svg" id="no_image_user" title="Tableau de bord">
+                <img v-else src="../assets/user_female.svg" id="no_image_user" title="Tableau de bord">
+            </div>
             <p>{{param.username}}</p>
         </aside>
+
+        <!-- Forms -->
         <section>
-            <form v-if="user_id == user_pointer_id">
-                <h1>MON COMPTE</h1>
-                <aside>
-                    <div>
-                        <label for="nom_d'utilisateur">Nom d'utilisateur</label>
-                        <br>
-                        <input type="text" name="nom_d'utilisateur" id="nom_d'utilisateur" placeholder="Nom d'utilisateur" required v-model="username">
-                    </div>
+            <div class="form">
 
-                    <div>
-                        <label for="email">Email</label>
-                        <br>
-                        <input type="email" name="email" id="email" placeholder="Adresse Email" required v-model="email">
-                    </div>
+                <!-- User param -->
+                <form v-if="user_id == user_pointer_id">
+                    <h2>MON COMPTE</h2>
 
-                </aside>
+                    <!-- Username -->
+                    <label for="username">Nom d'utilisateur</label>
+                    <input type="text" name="username" id="username" placeholder="Nom d'utilisateur" required v-model="username">
 
-                <div>
+                    <!-- Email -->
+                    <label for="email">Email</label>
+                    <input type="email" name="email" id="email" placeholder="Adresse Email" required v-model="email">
+
+                    <!-- Biography -->
                     <label for="biography">Biographie</label>
-                    <br>
-                    <input type="text" name="biography" id="biography" placeholder="Votre Biographie" required v-model="biography">
-                </div>
+                    <textarea name="biography" id="biography" placeholder="Votre Biographie" required v-model="biography"></textarea>
 
-                <input @change="addImage" type="file" id="myfile" name="myfile" accept= "image/*">
+                    <!-- Image -->
+                    <label for="myfile">Photo de Profil</label>
+                    <input @change="addImage" type="file" id="myfile" name="myfile" accept= "image/*">
 
-                <SubmitButton class="btn" @click="putParamEdit" value="Enregistrer"/>
-            </form>
+                    <SubmitButton class="btn-custom" @click="putParamEdit" value="Enregistrer"/>
+                </form>
 
-            <br>
-            <form v-if="user_id == user_pointer_id">
-                <h1>MOT DE PASSE</h1>
-                    <div>
-                        <label for="oldpasseword">Ancien mot-de-passe</label>
-                        <br>
-                        <input type="password" id="oldpassword" name="oldpasseword" placeholder="Ancien mot de passe" required v-model="oldpassword">
-                    </div>
+                <!-- User Password -->
+                <form v-if="user_id == user_pointer_id">
+                    <h2>MOT DE PASSE</h2>
 
-                    <aside>
-                        <div>
-                            <label for="newpassewordone">Nouveau mot-de-passe</label>
-                            <br>
-                            <input type="password" id="newpasswordone" name="newpasswordone" placeholder="Nouveau mot de passe" required v-model="newpasswordone">
-                        </div>
-                        
-                        <div>
-                            <label for="newpassewordtwo">Confirmation du mot-de-passe</label>
-                            <br>
-                            <input type="password" id="newpasswordtwo" name="newpasswordtwo" placeholder="Confirmer le mot de passe" required v-model="newpasswordtwo">
-                        </div>
-                    </aside>
+                    <!-- Old password -->
+                    <label for="oldpasseword">Ancien mot-de-passe</label>
+                    <input type="password" id="oldpassword" name="oldpasseword" placeholder="Ancien mot de passe" required v-model="oldpassword">
 
-                <SubmitButton class="btn" @click="putPassWordEdit" value="Enregistrer"/>
-            </form>
+                    <!-- New password -->
+                    <label for="newpassewordone">Nouveau mot-de-passe</label>
+                    <input type="password" id="newpasswordone" name="newpasswordone" placeholder="Nouveau mot de passe" required v-model="newpasswordone">
 
-            <SubmitButton class="btn" @click="deleteUserDelete" value="Supprimer le compte"/>
+                    <!-- New password confirmation -->
+                    <label for="newpassewordtwo">Confirmation du mot-de-passe</label>
+                    <input type="password" id="newpasswordtwo" name="newpasswordtwo" placeholder="Confirmer le mot de passe" required v-model="newpasswordtwo">
+
+                    <SubmitButton class="btn-custom" @click="putPassWordEdit" value="Enregistrer"/>
+                </form>
+            </div>
+
+            <!-- Delete User -->
+            <SubmitButton class="btn-custom btn-alert" @click="deleteUserDelete" value="Supprimer le compte"/>
         </section>
-    </div>
+    </main>
 </template>
 
 <style scoped lang="scss">
-.container{
+main{
+    margin-bottom: 2%;
+}
+
+main, aside, section{
     display: flex;
-    justify-content: space-around;
+    flex-direction: column;
+    align-items: center;
 }
 
 p{
@@ -199,193 +202,131 @@ p{
     margin: 10px;
 }
 
-h1{
-    color: #ffffff;
-    display: flex;
-    justify-content: center;
-    font-size: 2em;
-    margin: 1em;
-}
-
-h3{
-   color:#122542;
-   font-size:20px;
-}
-
-main{
-    margin: 1em;
-}
-
-
 section{
+    width: 85%;
 }
 
-header{
-    background-color: #122542;
-}
+/* User profil */
 
-body{
-    font-family: arial;
-    background-color:#02070d;
-    font-size: 15px;
+    .user_img{
+        overflow: hidden;
+        width: 150px;
+        height: 150px;
+        border-radius: 100px;
+        border: 2px #d1515a solid;
+        background-color: #ffd7d7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2px;
+        img{
+            width: 160px;
+            height: auto;
+        }
+        &:hover{
+            border: 2px #ffd7d7 solid;
+        }
+    }
 
-}
+    #no_image_user{
+        width: 100%;
+    }
 
-form{
-    background-color: rgba(18, 37, 66, 0.6);
-    padding: 30px;
-    border-radius: 30px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
+/*Form*/
 
-label{
-    color: #d1515a;
-    font-size: 25px;
-}
+    h2{
+        color: #ffffff;
+        display: flex;
+        justify-content: center;
+        font-size: 2em;
+        margin: 1em;
+    }
 
-input{
-    color: black;
-    border: 3px #fd2d01 solid;
-    border-radius: 20px;
-    margin-top: 10px;
-    margin-bottom: 50px;
-    padding-left: 10px;
-    width: 100%;
-    height: 75px;
-    font-size: 23px;
-}
+    .form{
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
 
-.profil{
-    width: 100px;
-    height: 100px;
-    background-color: #ffd7d7;
-    padding: 2px;
-    border-radius: 100px;
-    border: 2px #d1515a solid;
-}
+    form{
+        align-self: center;
+        background-color: rgba(18, 37, 66, 0.6);
+        padding: 30px;
+        border-radius: 30px;
+        display: flex;
+        flex-direction: column;
+        width: 80%;
+        margin-bottom: 10%;
+    }
 
-.btn {
-    margin: auto;
-    width: 300px;
-    height: 80px;
-    font-size: 28px;
-    font-family: arial;
-    color: #ffffff;
-    background-color: #fd2d01;
-    border-radius: 37px;
-    border:none;
-}
+    label{
+        color: #d1515a;
+        font-size: 25px;
+    }
 
-.param-profil{
-    background-color: rgba(18, 37, 66, 0.6);
-    padding: 30px;
-    border-radius: 30px;  
-    margin-bottom: 1em;
-    display: flex;
-    align-items: center;
-}
+    input, textarea {
+        margin: 10px 0 50px 0;
+        font-size: 23px;
+    }
 
-/*navbar*/
+    textarea,
+    input[type=text],
+    input[type=email],
+    input[type=password]{
+        color: black;
+        border: 3px #1f71ee solid;
+        border-radius: 20px;
+        padding-left: 10px;
+        width: 100%;
+        height: 75px;
+        font-family: Arial;
+    }
 
-nav{
-    padding: 4%;
-    display: flex;
-    align-items: center;
-}
+    textarea{
+        padding: 10px 10px 5px 10px;
+        height: 65px;
+    }
 
-.param-user{
-    padding: 4px;
-    padding-right: 20px;
-    width: 40%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: rgba(253, 45, 1, 0.3);
-    border-radius: 50px;
-}
+    .btn-custom {
+        margin: auto;
+        width: 300px;
+        font-size: 28px;
+        font-family: arial;
+        box-shadow: -4px 4px 10px black;
+        background-color: #fd2d01;
+        &:hover{
+            margin-bottom: -2px;
+            margin-top: 2px;
+            box-shadow: none;
+            background-color: #ea5232;
+        }
+    }
 
-.param-user .fas{
-    font-size: 1.5em;
-    color: #ffd7d7;
-}
-
-.param-user .fas:hover{
-    color: #02070d;
-}
-
-.param-user .profil{
-    width: 40px;
-    height: 40px;
-    background-color: #ffd7d7;
-    padding: 2px;
-    border-radius: 100px;
-    border: 2px #d1515a solid;
-}
-
-.param-user .profil:hover{
-    border: 2px #ffd7d7 solid;
-
-}
+    .btn-alert{
+        background-color: #b00;
+        box-shadow: none;
+        &:hover{
+            margin: 0;
+            background-color: #f00;
+        }
+    }
 
 @media screen and (min-width:1024px){
-    main{
-        width: 100%;
-        display: flex;
-        justify-content: space-around;
-    }
+section{
+    width: 70%;
+}
 
-    .profil{
-        width: 140px;
-        height: 140px; 
-    }
+/*Form*/
 
-    .param-profil{
-        width: 60%;
-        background-color: #02070d;
-        height: 20em;
-        flex-direction: column;
-        margin-top: 2%;
-    }
-
-    section{
-        padding: 70px;
-        width: 100%;
-    }
-
-    aside{
-        display: flex;
+    .form{
+        flex-direction: row;
         justify-content: space-between;
     }
 
-    input{
-        width: 100%;
-    }
-
-     /*navbar*/
-
-    nav{
-        flex-direction: column;
-        align-items: flex-start;
-        vertical-align: center;
-        width: 3%;
-        height: 875px;
-        position: fixed;
-        padding: 0.7%;
-        border-right: 3px #122542 solid;
-        background-color: #02070d;
-    }
-
-    .param-user{
-        flex-direction: column;
-        width: auto;
-        padding: 4px;
-        padding-bottom: 30px;
-    }
-
-    .param-user .fas{
-        padding-top: 20px;
+    form{
+        align-self: flex-start;
+        width: 43%;
+        margin-bottom: 2%;
     }
 }
 </style>

@@ -7,8 +7,8 @@
 			return{
 				sex : "",
 				role : "",
-				id : "",
-				img:""
+				user_id : "",
+				img: ""
 			}
 		},
 		methods : {
@@ -16,27 +16,31 @@
 		},
 		beforeMount(){
 			let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
-			this.id = userStorage.id
+			this.sex = userStorage.sex
+			this.role = userStorage.roleId
+			this.user_id = userStorage.id
+			this.img = userStorage.img
 
-			//récupération des informations de l'utilisateur actif
-			axios.get(`http://localhost:3000/api/param/${this.id}`, {
-                headers:{
-                    'Authorization' : `Token ${userStorage.token}`
+			axios.get(`http://localhost:3000/api/param/${this.user_id}`, {
+				headers:{
+					'Authorization' : `Token ${userStorage.token}`
+				}
+			})
+			.then(param => {
+				let user = {
+                    id : param.data.id,
+                    roleId : param.data.roleId,
+                    sex: param.data.sex,
+                    img: param.data.image,
+                    token : userStorage.token
                 }
-            })
-                .then(param => {
-                    this.img = param.data.image
-                    this.sex = param.data.sex
-                    this.role = param.data.roleId
 
-                    this.$store.state.user.username = param.data.username
-                    this.$store.state.user.image = param.data.image
-                    this.$store.state.user.sex = param.data.sex
-                    this.$store.state.user.role = param.data.roleId
-                })
-                .catch(error => {
-                    alert(`Quelque chose c'est mal passé. Essayez à nouveau ${error}`)
-                });
+                let userItems = JSON.stringify(user)
+                sessionStorage.setItem('userToken', userItems)
+            })
+            .catch(error => {
+                alert(`Quelque chose c'est mal passé. Essayez à nouveau ${error}`)
+            });
 		}
 	}
 </script>
@@ -46,33 +50,33 @@
 		<nav>
 			<div>
 				<!-- User Img -->
-				<router-link :to="{name: 'User', params: { id: id }}" class="user_img">
+				<router-link :to="{name: 'User', params: { id: user_id }}" class="user_img">
                     <img v-if="img" :src="img" title="Tableau de bord">
-                    <img v-else-if="sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord">
-                    <img v-else src="../assets/user_female.svg" title="Tableau de bord">
+                    <img v-else-if="sex === 'M'" src="../assets/user_male.svg" id="no_image_user" title="Tableau de bord">
+                    <img v-else src="../assets/user_female.svg" id="no_image_user" title="Tableau de bord">
                 </router-link>
 
                 <!-- Log out -->
 				<i class="fas fa-sign-out-alt" title="Déconnexion" @click="userSignout"></i>
 
 				<!-- Params -->
-                <router-link :to="{name: 'Parametre', params: { id: id }}"><i class="fas fa-tools" title="Paramètres"></i></router-link>
+                <router-link :to="{name: 'Parametre', params: { id: user_id }}"><i class="fas fa-tools" title="Paramètres"></i></router-link>
 			</div>
 
 			<!-- Activity -->
-			<router-link to="/Activity"><i class="fas fa-globe" title="Activité"></i></router-link>
+			<router-link :to="{name: 'Activity'}"><i class="fas fa-globe" title="Activité"></i></router-link>
 
 			<!-- All Users only for admin -->
 			<router-link to="/User" v-if="role === 2"><i class="fas fa-users" title="Tous les utilisateurs"></i></router-link>
 		</nav>
-		<main>
+		<div id="container">
 			<!-- Header -->
-			<div id="bande">
+			<header>
 				<img src="../assets/icon-left-font.svg">
 				<slot name="user_img"></slot>
-			</div>
-			<slot name="page"><p>Bonjour</p></slot>
-		</main>
+			</header>
+			<slot name="page"></slot>
+		</div>
 	</div>
 </template>
 
@@ -122,6 +126,10 @@ nav{
 	}
 }
 
+#no_image_user{
+	width: 40px;
+}
+
 .fa-globe, .fa-users{
 	color: #122542;
 	font-size: 2.4em;
@@ -132,7 +140,7 @@ nav{
 }
 
 /*header*/
-#bande{
+header{
 	background-color: #122542;
 	display: flex;
 	justify-content: center;
@@ -142,7 +150,7 @@ nav{
 	}
 }
 @media screen and (min-width:1024px){
-	main{
+	#container{
 		margin-left: 6.5%;
 	}
 
@@ -173,6 +181,10 @@ nav{
 		}
 	}
 
+	#no_image_user{
+		width: 60px;
+	}
+
     .fa-globe, .fa-users{
         font-size: 3em;
         margin: 0;
@@ -180,7 +192,7 @@ nav{
     }
 
 	/*banderelle*/
-	#bande{
+	header{
 		margin-bottom: 5%;
 		padding: 1%;
 		img{

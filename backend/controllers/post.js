@@ -6,6 +6,7 @@ const User = db.users
 const Comment = db.comments
 
 exports.createPost = (req, res, next) => {
+  //Init info
 	const postObject = JSON.parse(req.body.content);
 
   const post = {
@@ -18,6 +19,7 @@ exports.createPost = (req, res, next) => {
     post.image = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
   }
 
+  //create new post
   Post.create(post)
     .then(data => {
       res.status(201).json({ message: 'Post créé !' })
@@ -26,6 +28,7 @@ exports.createPost = (req, res, next) => {
 };
 
 exports.getAllPost = (req, res, next) => {
+  //get all posts with the created user and comments with their users
   Post.findAll({
     include: [
       { 
@@ -55,8 +58,7 @@ exports.getAllPost = (req, res, next) => {
 exports.getAllPostFromOneUser = (req, res, next) => {
   const id = req.params.userId;
 
-  console.log(id)
-
+  //get all posts from one user and comments with their users
   User.findByPk(id, {
     include: [
       { 
@@ -91,6 +93,7 @@ exports.getAllPostFromOneUser = (req, res, next) => {
 exports.getOnePost = (req, res, next) => {
   const id = req.params.id;
 
+  //get one post with the created user and comments with their users
   Post.findByPk(id, {
     include: [
       { 
@@ -115,6 +118,7 @@ exports.getOnePost = (req, res, next) => {
 };
 
 exports.modifyPost = (req, res, next) => {
+  //init info
   const id = req.params.id;
   const post = {};
 
@@ -127,32 +131,39 @@ exports.modifyPost = (req, res, next) => {
     post.image = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
   }
 
-  console.log(post)
-
+  //if image =>
   if (req.file){
+
+    //get one post
     Post.findByPk(id)
       .then((oldpost) => {
+
+        //if no content's post edit
         if(!post.content){
           post.content = oldpost.content
         }
 
+        //if there is an original image
         if(oldpost.image){
-          console.log("Il y a un fichier et le post de base en a un aussi")
-          const filename = oldpost.image.split('/images/')[1];
 
+          //delete original image
+          const filename = oldpost.image.split('/images/')[1];
           fs.unlink(`images/${filename}`, () => {
+
+            //edit post
             Post.update(post, { where: { id: id }})
             .then(data => {
-              console.log(data)
               res.status(201).json({ message: 'Post modifié !' })
             })
             .catch(error => res.status(500).json({ error }));
           });
+
+        //if no original image
         }else{
-          console.log("Il y a un fichier mais le post de base en n'a pas")
+
+          //edit post
           Post.update(post, { where: { id: id }})
           .then(data => {
-            console.log(data)
             res.status(201).json({ message: 'Post modifié !' })
           })
           .catch(error => res.status(500).json({ error }));
@@ -165,8 +176,9 @@ exports.modifyPost = (req, res, next) => {
           });
         }
       ); 
-  }else{
-    console.log("pas de ficher")
+  }
+  //if not image => edit post
+  else{
     Post.update(post, { where: { id: id }})
     .then(data => {
       res.status(201).json({ message: 'Post modifié !' })
@@ -178,16 +190,24 @@ exports.modifyPost = (req, res, next) => {
 exports.deletePost = (req, res, next) => {
   const id = req.params.id;
 
+  //find one post
   Post.findByPk(id)
   .then((post) => {
-    console.log(post.image)
-    if (post.image != null) {
+
+    //if there is an original image =>
+    if (post.image) {
+
+      //delete original image
       const filename = post.image.split('/images/')[1];
       fs.unlink(`images/${filename}`, () => {
+
+        //delete post
         Post.destroy({ where: { id : id }})
         .then(() => res.status(200).json({ message: 'Post supprimé !'}))
         .catch(error => res.status(400).json({ error }));
       });
+
+    //if no original image => delete post
     }else{
       Post.destroy({ where: { id : id }})
       .then(() => res.status(200).json({ message: 'Post supprimé !'}))

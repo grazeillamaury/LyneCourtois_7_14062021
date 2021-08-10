@@ -17,10 +17,12 @@ schemaPassValid
 .is().not().oneOf(['Passw0rd', 'Password123']);
 
 exports.signup = (req, res, next) => {
+  //If password not valid
   if (!schemaPassValid.validate(req.body.password)) {
     return res.status(401).json({ error: 'Sécurité du mot de passe faible. Il doit contenir au moins 8 caractère, des majuscules et deux chiffres' })
   }
 
+  //Init new user
   bcrypt.hash(req.body.password, 10)
     .then(hash => {
       const user = {
@@ -31,6 +33,7 @@ exports.signup = (req, res, next) => {
         roleId : 1
       };
 
+      //create user
       User.create(user)
         .then(data => {
           res.status(201).json({ message: 'Utilisateur créé !' })
@@ -41,24 +44,34 @@ exports.signup = (req, res, next) => {
 };
 
 exports.login = (req, res) => {
+  //init info
   let loginEmail = xss(req.body.email)
   let loginPassword = req.body.password
 
+  //try to get pointed_user
   User.findAll({ where: { email: loginEmail } })
     .then(user => {
+
+      //if no user
       if (!user) {
         return res.status(401).json({ error: 'Utilisateur non trouvé !' });
       }
 
+      //compare passwords
       bcrypt.compare(loginPassword, user[0].password)
         .then(valid => {
+
+          //if not the same
           if (!valid) {
             return res.status(401).json({ error: 'Mot de passe incorrect !' });
           }
+
+          //answer with info
           res.status(200).json({
             userId: user[0].id,
             roleId: user[0].roleId,
             sex: user[0].sex,
+            image:user[0].image,
             token: jwt.sign(
               { userId: user._id },
               'RANDOM_TOKEN_SECRET',

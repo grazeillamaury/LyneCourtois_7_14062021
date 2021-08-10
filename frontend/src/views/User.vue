@@ -3,35 +3,32 @@
         name: "Login",
         data(){
             return{
+                user_id :"",
                 role:"",
-                sex : "",
-                image : "",
                 user : "",
-                user_id : "",
-                creator_id:"",
             }
         },
-        computed : {},
-        methods : {},
         beforeCreate(){
+            //If user connected
             const userStorage = JSON.parse(sessionStorage.getItem('userToken'))
             if (userStorage === null) {
                 window.location.href = 'http://localhost:8080';
             }
         },
         beforeMount(){
+            //Init
+            const userStorage = JSON.parse(sessionStorage.getItem('userToken'))
             const axios = require('axios')
             const moment = require('moment');
             moment().format();
             moment.locale('fr');
 
-            let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
-            this.sex = userStorage.sex
-            this.user_id = userStorage.id
+            //Fill in the data
             this.role = userStorage.roleId
-            this.creator_id = this.$route.params.id
+            this.user_id = userStorage.id
+            let creator_id = this.$route.params.id
 
-            axios.get(`http://localhost:3000/api/post/user/${this.creator_id}`, {
+            axios.get(`http://localhost:3000/api/post/user/${creator_id}`, {
                 headers:{
                     'Authorization' : `Token ${userStorage.token}`
                 }
@@ -52,285 +49,139 @@
                 })
             })
             .catch(error => {
-                console.log(error);
                 alert(`Quelque chose c'est mal passé. Essayez à nouveau ${error}`)
             });
         },
         mounted(){
-            document.title = 'Activité'
+            document.title = 'Tableau de bord'
         }
     }
 </script>
 
 <template>
-    <section>
-        <div class="posts">
+    <main>
+        <!-- User info -->
+        <aside>
+
+            <div class="user_img">
+                <img v-if="user.image" :src="user.image" title="Tableau de bord">
+                <img v-else-if="user.sex === 'M'" src="../assets/user_male.svg" id="no_image_user" title="Tableau de bord">
+                <img v-else src="../assets/user_female.svg" id="no_image_user" title="Tableau de bord">
+            </div>
+
+            <!-- All info -->
+            <div class="block">
+                <h2>{{ user.username }}</h2>
+
+                <p v-if="user.roleId === 2" class="role">Admin</p>
+                <p v-else class="role">Employé</p>
+
+                <p>{{ user.email }}</p>
+
+                <i v-if="user.sex === 'F'" class="fas fa-venus"></i>
+                <i v-else class="fas fa-mars"></i>
+            </div>
+
+            <!-- Biography -->
+            <div>
+                <h3>Biographie</h3>
+                <p v-if="user.biography" class="block">{{ user.biography }}</p>
+                <p v-else class="block">Aucune biographie</p>
+            </div>
+        </aside>
+
+        <!-- All posts -->
+        <div>
             <div class="post" v-for="item in user.posts" :key="item.id">
-                <div class="line1">
-                    <div class="user">
-                        <img v-if="user.image" :src="user.image" title="Tableau de bord" class="user_img">
-                        <img v-else-if="user.sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
-                        <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
-                        <div>
+
+                <!-- User info and edit button -->
+                <div class="user">
+
+                    <!-- User info -->
+                    <div class="user_info">
+                        <div class="user_img">
+                            <img v-if="user.image" :src="user.image" title="Tableau de bord">
+                            <img v-else-if="user.sex === 'M'" src="../assets/user_male.svg" id="no_image_user" title="Tableau de bord">
+                            <img v-else src="../assets/user_female.svg" id="no_image_user" title="Tableau de bord">
+                        </div>
+
+                        <div class="user_info_username">
                             <h2>{{user.username}}</h2>
                             <p>{{item.date}}</p>
                         </div>
                     </div>
-                    <div>
-                        <router-link :to="{name: 'Post', params: { id: item.id },}" v-if="user.id === user_id"><i class="fas fa-user-edit" title="Modifier ou supprimer"></i></router-link>
-                        <router-link :to="{name: 'Post', params: { id: item.id },}" v-else-if="role === 2"><i class="fas fa-user-edit" title="Modifier ou supprimer"></i></router-link>
-                    </div>
+
+                    <!-- Edit Button -->
+                    <router-link :to="{name: 'Post', params: { id: item.id },}" v-if="user.id === user_id">
+                        <i class="fas fa-user-edit" title="Modifier ou supprimer" v-if="user.id === user_id"></i>
+                        <i class="fas fa-user-edit" title="Modifier ou supprimer" v-else-if="role === 2"></i>
+                    </router-link>
                 </div>
 
-                <p class="text">{{item.content}}</p>
-
+                <!-- Content -->
+                <p class="content">{{item.content}}</p>
                 <img v-if="item.image" :src="item.image" class="post_img" alt="aucune description disponible">
 
-                <div class="share_comment">
-                    <router-link :to="{name: 'Post', params: { id: item.id },}"><p><i class="fas fa-comments" title="Commenter"></i>{{ item.commentsNum }}</p></router-link>
-                </div>
-                <div class="comments">
+                <router-link :to="{name: 'Post', params: { id: item.id },}" class="add_comment"><p>
+                    <i class="fas fa-comments" title="Commenter"></i>
+                    {{ item.commentsNum }}
+                </p></router-link>
+
+                <!-- Comments -->
+                <div v-if="item.comments != ''" class="comments">
+
+                    <!-- Base Comments -->
                     <div class="comment" v-for="comment in item.comments" :key="comment.id">
+
+                        <!-- User info -->
                         <div class="user_comment">
-                            <div class="user_comment_info">
-                                <router-link :to="{name: 'User', params: { id: comment.user.id }}">
-                                    <img v-if="comment.user.image" :src="comment.user.image" title="Tableau de bord" class="user_img">
-                                    <img v-else-if="comment.user.sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
-                                    <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
-                                </router-link>
-                                <div>
-                                    <h2>{{comment.user.username}}</h2>
-                                    <p>{{comment.date}}</p>
-                                </div>
+                            <router-link :to="{name: 'User', params: { id: comment.user.id }}" class="user_img">
+                                <img v-if="comment.user.image" :src="comment.user.image" title="Tableau de bord">
+                                <img v-else-if="comment.user.sex === 'M'" src="../assets/user_male.svg" id="no_image_user" title="Tableau de bord">
+                                <img v-else src="../assets/user_female.svg" id="no_image_user" title="Tableau de bord">
+                            </router-link>
+                            <div>
+                                <h2>{{comment.user.username}}</h2>
+                                <p>{{comment.date}}</p>
                             </div>
-                            <p>{{ comment.content }}</p>
                         </div>
+
+                        <!-- Comment content -->
+                        <p>{{ comment.content }}</p>
                     </div>
                 </div>
             </div>
         </div>
-        <aside class="user_info">
-            <h2>{{ user.username }}</h2>
-            <img v-if="user.image" :src="user.image" title="Tableau de bord" class="user_img">
-            <img v-else-if="user.sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
-            <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
-            <p>{{user.biography}}</p>
-            <p>{{user.email}}</p>
-            <p v-if="user.sex === 'F'" >Femme</p>
-            <p v-else>Homme</p>
-        </aside>
-    </section>
+    </main>
 </template>
 
 <style scoped lang="scss">
-section{
+main{
+    margin-bottom: 3%;
+}
+
+.user_img{
+    overflow: hidden;
+    width: 50px;
+    height: 50px;
+    border-radius: 100px;
+    border: 2px #d1515a solid;
+    background-color: #ffd7d7;
     display: flex;
-    justify-content: space-between;
-}
-
-h2{
-    color: #fd2d01;
-    font-size: 1.5em;
-    font-weight: 100;
-}
-
-.posts{
-    width: 80%;
-}
-
-.post{
-    background-color: #122542;
-    margin-bottom: 40px;
-    padding: 10px 20px 10px 20px;
-    border-radius: 30px;
-    margin: 0 4%;
-    display: flex;
-    flex-direction: column;
-    &_img{
-        margin: auto;
-        margin-top: 10px;
-        width: 50%;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    img{
+        width: 60px;
         height: auto;
     }
-}
-
-.line1{
-    display: flex;
-    justify-content: space-between;
-}
-
-.user{
-    display: flex;
-    width: 60%;
-    padding-bottom: 10px;
-    border-bottom: 3px #d1515a solid;
-    div{
-        padding-left: 10px;
-        padding-top: 2%;
-    }
-    p{
-        color: #ffd7d7;
-        font-size: 1em;
-        padding-top: 5%; 
-    }
-    &_img{
-        width: 40px;
-        height: 40px;
-        background-color: #ffd7d7;
-        padding: 2px;
-        border-radius: 100px;
-        border: 2px #d1515a solid;
+    &:hover{
+        border: 2px #ffd7d7 solid;
     }
 }
 
-textarea{
-    color: #ffd7d7;
-    background-color: rgba(2, 7, 13, 0.5);
-    border: 2px #fd2d01 solid;
-    border-radius: 40px;
-    padding: 10px 10px 5px 10px;
-    margin-left: 10px;
+#no_image_user{
     width: 100%;
-    font-size: 1.2em;
-    font-family: Arial;
-}
-
-.text{
-    padding-top: 2%;
-    padding-bottom: 2%;
-    color: white;
-    font-size: 1.1em;
-    line-height: 1.5em;
-    letter-spacing: 0.02em;
-    border-bottom: 2px rgba(255, 255, 255, 0.1) solid;
-}
-
-.share_comment{
-    padding: 10px;
-    width: 16%;
-    display: flex;
-    justify-content: space-between;
-    p{
-        font-size: 1.7em;
-        color: #fd2d01;
-        display: flex;
-        align-items: center;
-    }
-    .fas{
-        color: #d1515a;
-        font-size: 1.5em;
-        padding-right: 10px;
-        &:hover{
-            color: #ffd7d7;
-        }
-    }
-}
-
-.line2{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    label{
-        display: flex;
-        align-items: center;
-        font-size: 1.1em;
-        color: #fd2d01;
-    }
-    i{
-        margin-right: 10px;
-        color: #d1515a;
-        font-size: 30px;
-    }
-}
-
-.btn-post{
-    width: 150px;
-    height: 40px;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #ffffff;
-    background-color: #d1515a;
-    border-radius: 37px;
-    border:none;
-    box-shadow: -4px 4px 10px black;
-    margin: 25px 0 2px 0;
-    &:hover{
-        margin-bottom: 0px;
-        margin-top: 27px;
-        color: #d1515a;
-        background-color: #ffd7d7;
-        border-radius: 37px;
-        border:none;
-        box-shadow: none;
-    }
-}
-
-.comments{
-    border: 4px #d1515a solid;
-    border-radius: 10px;
-    margin-top: 10px;
-    padding: 1% 2%;
-    p{
-        font-size: 1.05em;
-        width: 80%;
-    }
-}
-
-.comment{
-    padding-bottom: 1%;
-    margin-bottom: 5%;
-    border-bottom: 2px #ffd7d7 solid;
-    a{
-        margin-left: 2%;
-        color: #ffd7d7;
-        &:hover{
-            color: #f76a4c;
-        }
-    }
-}
-
-.user_comment{
-    display: flex;
-    margin-bottom: 5px;
-    p{
-        margin: 0;
-        align-self: center;
-    }
-
-}
-
-.user_comment_info{
-    display: flex;
-    width: 15%;
-    margin-right: 1%;
-    padding-bottom: 10px;
-    border-bottom: 3px #d1515a solid;
-    img{
-        width: 40px;
-        height: 40px;
-        background-color: #ffd7d7;
-        padding: 2px;
-        border-radius: 100px;
-        border: 2px #d1515a solid;
-    }
-    div{
-        padding-left: 10px;
-        padding-top: 2%;
-    }
-    p{
-        color: #ffd7d7;
-        font-size: 1em;
-        padding-top: 5%; 
-    }
-}
-
-.fa-user-edit{
-    margin-left: 20px;
-    font-size: 1.8em;
-    color: #d1515a;
-    &:hover{
-        color: #ffd7d7;
-    }
 }
 
 a {
@@ -338,42 +189,236 @@ a {
     cursor: pointer;
 }
 
-.user_info{
-    background-color: #ffd7d7;
-    width: 20%;
-}
+/* User info  */
 
-@media screen and (min-width:1024px){
-    .post{
-        margin: 0 15%;
+    aside{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin : 0 4%;
+        div{
+            width: 90%;
+            margin-bottom: 20px;
+        }
+        i{
+            font-size: 5em;
+            color: #d1515a;
+        }
+        p{
+            color: white;
+        }
+        .user_img{
+            width: 100px;
+            height: 100px;
+            img{
+                width: 110px;
+            }
+        }
     }
 
-    .line1 img{
+    .role{
+        color: #d1515a;
+        font-size: 1.6em;
+    }
+
+    .block{
+        margin: 10px 0;
+        background-color: #122542;
+        border: 1.5px solid #d1515a;
+        border-radius: 10px;
+        padding: 2%;
+        word-wrap: break-word;
+    }
+
+
+/*Post*/
+    .post{
+        background-color: #122542;
+        padding: 10px 20px;
+        border-radius: 30px;
+        margin : 0 4%;
+        display: flex;
+        flex-direction: column;
+        margin-top: 40px;
+        &_img{
+            margin: auto;
+            margin-top: 2%;
+            width: 100%;
+        }
+    }
+
+    h2, h3{
+        color: #fd2d01;
+        font-weight: 100;
+    }
+
+    .user{
+        display: flex;
+        justify-content: space-between;
+        &_info{
+            display: flex;
+            align-items: center;
+            width: 80%;
+            padding-bottom: 10px;
+            border-bottom: 3px #d1515a solid;
+            &_username{
+                padding-left: 10px;
+            }
+            p{
+                color: #ffd7d7;
+                padding-top: 5%; 
+            }
+        }
+    }
+
+    .fa-user-edit{
+        font-size: 1.8em;
+        color: #d1515a;
+        &:hover{
+            color: #ffd7d7;
+        }
+    }
+
+    .content{
+        padding: 2% 0;
+        color: white;
+        font-size: 1.1em;
+        line-height: 1.5em;
+        letter-spacing: 0.02em;
+        border-bottom: 2px rgba(255, 255, 255, 0.1) solid;
+    }
+
+    .add_comment{
+        padding: 0 0 10px 10px;
+        margin-top: 2%;
+        p{
+            font-size: 1.7em;
+            color: #fd2d01;
+            display: flex;
+            align-items: center;
+        }
+        .fas{
+            color: #d1515a;
+            font-size: 1.5em;
+            padding-right: 10px;
+            &:hover{
+                color: #ffd7d7;
+            }
+        }
+    }
+
+    /*Comments*/
+        .comments{
+            border: 4px #d1515a solid;
+            border-radius: 10px;
+            margin-top: 10px;
+            padding: 3% 2%;
+            p{
+                font-size: 1.05em;
+            }
+        }
+
+        .comment{
+            display: flex;
+            align-items: center;
+            padding-bottom: 2%;
+            margin-bottom: 7%;
+            border-bottom: 2px #ffd7d7 solid;
+            p{
+                color: white;
+                margin: 0 4%;
+                width: 80%;
+                word-wrap: break-word;   
+            }
+        }
+
+        .user_comment{
+            display: flex;
+            div{
+                margin-left: 10px;
+                width: min-content;
+                display: none;
+            }
+            p{
+                color: #ffd7d7;
+                font-size: 0.9em;
+                padding-top: 5%;
+                margin: 0;
+
+            }
+            .user_img{
+                width: 40px;
+                height: 40px;
+                img{
+                    width: 50px;
+                }
+            }
+        }
+@media screen and (min-width:1024px){
+    form, .post{
+        margin-right: 40%;
+        margin-left: 10%;
+    }
+
+    .user_img{
         width: 60px;
         height: 60px;
+        img{
+            width: 70px;
+            height: auto;
+        }
     }
 
-    .line2 label{
-        font-size: 1.5em;
-        i{
-            font-size: 40px;
-        }   
-    }
+    /* User info  */
 
-    textarea{
-    border-radius: 40px;
-    margin-left: 10px;
-    padding-left: 30px;
-    padding-right: 20px;
-    padding-top: 20px;
-    padding-bottom: 15px;
-    font-size: 1.5em;
-    }
+        aside{
+            position: fixed;
+            top:0;
+            right: 0;
+            margin : 0;
+            padding: 7% 2%;
+            height: 100%;
+            background-color: #122542;
+            max-width: 300px;
+            min-width: 230px;
+            div{
+                width: 100%;
+            }
+            i{
+                font-size: 3em;
+            }
+        }
 
-    .btn-post{
-        width: 230px;
-        height: 50px;
-        font-size: 1.5em;
-    }
+        .block{
+            border: 2px solid #d1515a;
+            width: 95%;
+        }
+
+    /*Post*/
+        .post_img{
+            margin-top: 1%;
+            width: 60%;
+        }
+
+        .user_info{
+            width: 60%;
+        }
+
+        /*Comments*/
+            .comments{
+                padding: 1% 2%;
+            }
+
+            .comment{
+                padding-bottom: 1%;
+                margin-bottom: 3%;
+                p{
+                    width: 80%;
+                }
+            }
+
+            .user_comment div{
+                display: block;
+            }
 }
 </style>

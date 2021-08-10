@@ -21,7 +21,7 @@ export default {
 
 <style scoped lang="scss">
 p{
-    font-size: 20px;
+    font-size: 30px;
     color: #fd2d01;
 }
 

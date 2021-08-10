@@ -38,19 +38,47 @@
                 this.users = users.data
             })
             .catch(error => {
-                console.log(error);
                 alert(`Quelque chose c'est mal passé. Essayez à nouveau ${error}`)
             });
         },
         mounted(){
-            document.title = 'Activité'
+            document.title = 'Tous les utilisateurs'
         }
     }
 </script>
 
 <template>
-    <section>
-        <div v-for="item in users" :key="item.id">
+    <main>
+        <div v-for="item in users" :key="item.id" class="user">
+            <div class="user_info">
+                <router-link :to="{name: 'User', params: { id: item.id }}" class="user_img">
+                    <img v-if="item.image" :src="item.image" title="Tableau de bord">
+                    <img v-else-if="item.sex === 'M'" src="../assets/user_male.svg" id="no_image_user" title="Tableau de bord">
+                    <img v-else src="../assets/user_female.svg" id="no_image_user" title="Tableau de bord">
+                </router-link>
+
+                <div>
+                    <div class="info">
+                        <h2>{{ item.username}}</h2>
+                        <i v-if="item.sex === 'F'" class="fas fa-venus"></i>
+                        <i v-else class="fas fa-mars"></i>
+                    </div>
+
+                    <div class="info">
+                        <p v-if="item.roleId === 2" class="role">Admin</p>
+                        <p v-else class="role">Employé</p>
+
+                        <p>{{ item.email }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <router-link :to="{name: 'Parametre', params: { id: item.id }}"><SubmitButton class="btn-custom" value="Supprimer"/></router-link>
+        </div>
+
+
+
+        <!-- <div v-for="item in users" :key="item.id">
             <router-link :to="{name: 'User', params: { id: item.id }}">
                 <img v-if="item.image" :src="item.image" title="Tableau de bord" class="user_img">
                 <img v-else-if="item.sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
@@ -63,250 +91,127 @@
             </div>
             <p>{{ item.email }}</p>
             <router-link :to="{name: 'Parametre', params: { id: item.id }}"><SubmitButton class="btn-post" value="Supprimer"/></router-link>
-        </div>
-    </section>
+        </div> -->
+    </main>
 </template>
 
 <style scoped lang="scss">
+main{
+    display: flex;
+    flex-direction: column;
+    margin: 0 4%;
+}
+
+a{
+    width: 60%;
+}
+
 h2{
     color: #fd2d01;
-    font-size: 1.5em;
+    font-size: 1.6em;
     font-weight: 100;
 }
 
-.post{
-    background-color: #122542;
-    margin-bottom: 40px;
-    padding: 10px 20px 10px 20px;
-    border-radius: 30px;
-    margin-left: 4%;
-    margin-right: 4%;
-    display: flex;
-    flex-direction: column;
-    &_img{
-        margin: auto;
-        margin-top: 10px;
-        width: 50%;
-        height: auto;
-    }
+p{
+    color: white;
 }
 
-.line1{
-    display: flex;
-    justify-content: space-between;
+i{
+    font-size: 1.6em;
+    color: #d1515a;
+    margin-left: 10px;
 }
 
 .user{
+    background-color: #122542;
+    border-radius: 10px;
+    padding: 2%;
     display: flex;
-    width: 60%;
-    padding-bottom: 10px;
-    border-bottom: 3px #d1515a solid;
-    div{
-        padding-left: 10px;
-        padding-top: 2%;
-    }
-    p{
-        color: #ffd7d7;
-        font-size: 1em;
-        padding-top: 5%; 
-    }
-    &_img{
-        width: 40px;
-        height: 40px;
-        background-color: #ffd7d7;
-        padding: 2px;
-        border-radius: 100px;
-        border: 2px #d1515a solid;
-    }
-}
-
-textarea{
-    color: #ffd7d7;
-    background-color: rgba(2, 7, 13, 0.5);
-    border: 2px #fd2d01 solid;
-    border-radius: 40px;
-    padding: 10px 10px 5px 10px;
-    margin-left: 10px;
-    width: 100%;
-    font-size: 1.2em;
-    font-family: Arial;
-}
-
-.text{
-    padding-top: 2%;
-    padding-bottom: 2%;
-    color: white;
-    font-size: 1.1em;
-    line-height: 1.5em;
-    letter-spacing: 0.02em;
-    border-bottom: 2px rgba(255, 255, 255, 0.1) solid;
-}
-
-.share_comment{
-    padding: 10px;
-    width: 16%;
-    display: flex;
-    justify-content: space-between;
-    p{
-        font-size: 1.7em;
-        color: #fd2d01;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+    &_info{
+        width: 100%;
         display: flex;
-        align-items: center;
-    }
-    .fas{
-        color: #d1515a;
-        font-size: 1.5em;
-        padding-right: 10px;
-        &:hover{
-            color: #ffd7d7;
+        justify-content: space-between;
+        div{
+            width: 85%;
+            margin-left: 5px;
         }
     }
 }
 
-.line2{
+.info{
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    label{
-        display: flex;
-        align-items: center;
-        font-size: 1.1em;
-        color: #fd2d01;
+    width: 100%;
+    margin-bottom: 1%;
+}
+
+.user_img{
+    overflow: hidden;
+    width: 50px;
+    height: 50px;
+    border-radius: 100px;
+    border: 2px #d1515a solid;
+    background-color: #ffd7d7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    img{
+        width: 60px;
+        height: auto;
     }
-    i{
-        margin-right: 10px;
-        color: #d1515a;
-        font-size: 30px;
+    &:hover{
+        border: 2px #ffd7d7 solid;
     }
 }
 
-.btn-post{
-    width: 150px;
+#no_image_user{
+    width: 100%;
+}
+
+.role{
+    color: #d1515a;
+    margin-right: 10px;
+}
+
+.btn-custom{
+    width: 100%;
     height: 40px;
     font-size: 1.2em;
     font-weight: bold;
-    color: #ffffff;
     background-color: #d1515a;
-    border-radius: 37px;
-    border:none;
     box-shadow: -4px 4px 10px black;
-    margin: 25px 0 2px 0;
+    margin: 5px 0 2px 0;
     &:hover{
         margin-bottom: 0px;
-        margin-top: 27px;
+        margin-top: 7px;
         color: #d1515a;
         background-color: #ffd7d7;
-        border-radius: 37px;
-        border:none;
         box-shadow: none;
     }
 }
 
-.comments{
-    border: 4px #d1515a solid;
-    border-radius: 10px;
-    margin-top: 10px;
-    padding: 1% 2%;
-    p{
-        font-size: 1.05em;
-        width: 80%;
-    }
-}
-
-.comment{
-    padding-bottom: 1%;
-    margin-bottom: 5%;
-    border-bottom: 2px #ffd7d7 solid;
-    a{
-        margin-left: 2%;
-        color: #ffd7d7;
-        &:hover{
-            color: #f76a4c;
-        }
-    }
-}
-
-.user_comment{
-    display: flex;
-    margin-bottom: 5px;
-    p{
-        margin: 0;
-        align-self: center;
-    }
-
-}
-
-.user_comment_info{
-    display: flex;
-    width: 15%;
-    margin-right: 1%;
-    padding-bottom: 10px;
-    border-bottom: 3px #d1515a solid;
-    img{
-        width: 40px;
-        height: 40px;
-        background-color: #ffd7d7;
-        padding: 2px;
-        border-radius: 100px;
-        border: 2px #d1515a solid;
-    }
-    div{
-        padding-left: 10px;
-        padding-top: 2%;
-    }
-    p{
-        color: #ffd7d7;
-        font-size: 1em;
-        padding-top: 5%; 
-    }
-}
-
-.fa-user-edit{
-    margin-left: 20px;
-    font-size: 1.8em;
-    color: #d1515a;
-    &:hover{
-        color: #ffd7d7;
-    }
-}
-
-a {
-    text-decoration: none;
-    cursor: pointer;
-}
-
 @media screen and (min-width:1024px){
-    .post{
-        margin-right: 20%;
-        margin-left: 20%;
+    main{
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        margin: 0 10%;
     }
 
-    .line1 img{
-        width: 60px;
-        height: 60px;
+    .user{
+        width: 45%;
     }
 
-    .line2 label{
-        font-size: 1.5em;
-        i{
-            font-size: 40px;
-        }   
-    }
-
-    textarea{
-    border-radius: 40px;
-    margin-left: 10px;
-    padding-left: 30px;
-    padding-right: 20px;
-    padding-top: 20px;
-    padding-bottom: 15px;
-    font-size: 1.5em;
-    }
-
-    .btn-post{
-        width: 230px;
-        height: 50px;
-        font-size: 1.5em;
+    .user_img{
+        width: 80px;
+        height: 80px;
+        img{
+            width: 90px;
+            height: auto;
+        }
     }
 }
 </style>
