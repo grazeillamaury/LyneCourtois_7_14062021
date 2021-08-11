@@ -36,7 +36,7 @@ export default new Vuex.Store({
 			id : "",
 			text : "",
 		},
-		user_id_delete: "",
+		user_id_pointed: "",
 		lettersRg : /^[-'a-zA-ZÀ-ÖØ-öø-ÿœ\s.]+$/,
 		postsRg : /^[-'a-zA-Z0-9À-ÖØ-öø-ÿœ\s#!^$()?+*.:,|]+$/,
 		emailRg : /^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,4}$/
@@ -373,6 +373,7 @@ export default new Vuex.Store({
 			let image = context.state.param.imageUser
 			let email = context.state.param.email
 			let biography = context.state.param.biography
+			let user_id = context.state.user_id_pointed
 
 			//Init validation
 			let username_valid = lettersRg.test(username)
@@ -385,7 +386,6 @@ export default new Vuex.Store({
 				//Init Form and userStorage
 				let formData = new FormData()
 				let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
-				let user_id = userStorage.id
 
 				//Init param with all options
 				let param = {
@@ -442,13 +442,13 @@ export default new Vuex.Store({
 			}
 		},
 		putPassWordEdit(context){
+			let user_id = context.state.user_id_pointed
 			//Compare Passwords
 			if (context.state.param.newpasswordone === context.state.param.newpasswordtwo) {
 
 				//Init data
 				let password = context.state.param.newpasswordone
 				let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
-				let user_id = userStorage.id
 
 				let PWchange = {
 					oldpassword : context.state.param.oldpassword,
@@ -475,7 +475,7 @@ export default new Vuex.Store({
 		},
 		deleteUserDelete(context){
 			//Init Data
-			let user_id = context.state.user_id_delete
+			let user_id = context.state.user_id_pointed
 			let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
 
 			//Send info to Back

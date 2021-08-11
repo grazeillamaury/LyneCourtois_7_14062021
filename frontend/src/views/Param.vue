@@ -7,7 +7,8 @@
             return{
                 param : "",
                 user_pointer_id :"",
-                user_id : ""
+                user_id : "",
+                role:""
             }
         },
         components: {
@@ -93,6 +94,7 @@
 
             let userStorage = JSON.parse(sessionStorage.getItem('userToken'))
             this.user_id = userStorage.id
+            this.role = userStorage.roleId
             this.user_pointer_id = this.$route.params.id
 
             //get Param
@@ -108,7 +110,7 @@
                 this.$store.state.param.email = this.param.email
                 this.$store.state.param.biography = this.param.biography
 
-                this.$store.state.user_id_delete = this.param.id
+                this.$store.state.user_id_pointed = this.param.id
             })
             .catch(error => {
                 alert(`Quelque chose c'est mal passé. Essayez à nouveau ${error}`)
@@ -180,7 +182,8 @@
             </div>
 
             <!-- Delete User -->
-            <SubmitButton class="btn-custom btn-alert" @click="deleteUserDelete" value="Supprimer le compte"/>
+            <SubmitButton v-if="role === 2" class="btn-custom btn-alert" @click="deleteUserDelete" value="Supprimer le compte"/>
+            <SubmitButton v-else-if="user_id == user_pointer_id" class="btn-custom btn-alert" @click="deleteUserDelete" value="Supprimer le compte"/>
         </section>
     </main>
 </template>

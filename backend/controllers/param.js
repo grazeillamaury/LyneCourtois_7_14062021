@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const passwordValidator = require('password-validator');
 const fs = require('fs')
 const xss = require('xss')
@@ -50,6 +51,9 @@ exports.getOneUserParam = (req, res, next) => {
 
 exports.modifyParam = (req, res, next) => {
   //Init info
+  const token = req.headers.authorization.split(' ')[1];
+  const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
+  const userId = decodedToken.userId
   const id = req.params.id;
   const paramObject = JSON.parse(req.body.content);
 
@@ -63,55 +67,68 @@ exports.modifyParam = (req, res, next) => {
     param.image = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
   }
 
-  //if image =>
-  if (req.file){
+  Param.findByPk(id)
+    .then((user) => {
 
-    //Get one User
-    Param.findByPk(id)
-      .then((oldUser) => {
-        if(oldUser.image){
+      //if the creator =>
+      if (userId === user.id) {
 
-          //delete original image
-          const filename = oldUser.image.split('/images/')[1];
-          fs.unlink(`images/${filename}`, () => {
+        //if image =>
+        if (req.file){
 
-            //change param
+          if(user.image){
+            //delete original image
+            const filename = oldUser.image.split('/images/')[1];
+            fs.unlink(`images/${filename}`, () => {
+
+              //change param
+              Param.update(param, { where: { id: id }})
+              .then(data => {
+                res.status(201).json({ message: 'Utilisateur modifié !', newImage: param.image})
+              })
+              .catch(error => res.status(500).json({ error }));
+            });
+          }else{
+
+            //change param if no image
             Param.update(param, { where: { id: id }})
             .then(data => {
               res.status(201).json({ message: 'Utilisateur modifié !', newImage: param.image})
             })
             .catch(error => res.status(500).json({ error }));
-          });
-        }else{
-
-          //change param if no image
+          }
+        }
+        //if not =>
+        else{
           Param.update(param, { where: { id: id }})
           .then(data => {
-            res.status(201).json({ message: 'Utilisateur modifié !', newImage: param.image})
+            res.status(201).json({ message: 'Utilisateur modifié !' })
           })
           .catch(error => res.status(500).json({ error }));
         }
-      })
-      .catch(
-        (error) => {
-          res.status(400).json({
-            error: error
-          });
-        }
-      ); 
-  }
-  //if not =>
-  else{
-    Param.update(param, { where: { id: id }})
-    .then(data => {
-      res.status(201).json({ message: 'Utilisateur modifié !' })
+
+      //if not => error
+      }else{
+        res.status(401).json({
+          error: new Error('Invalid request!')
+        });
+      }
+      
     })
-    .catch(error => res.status(500).json({ error }));
-  }
+    .catch(
+      (error) => {
+        res.status(400).json({
+          error: error
+        });
+      }
+    ); 
 };
 
 exports.modifyPassword = (req, res, next) => {
   //Init all data
+  const token = req.headers.authorization.split(' ')[1];
+  const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
+  const userId = decodedToken.userId
   const id = req.params.id;
   const passwords = req.body
   const oldpassword = passwords.oldpassword
@@ -121,86 +138,113 @@ exports.modifyPassword = (req, res, next) => {
   Param.findByPk(id)
     .then(user => {
 
-      //Compare Passwords
-      bcrypt.compare(oldpassword, user.password)
-        .then(valid => {
+      console.log(userId)
+      console.log(user.id)
+      //if the creator =>
+      if (userId === user.id) {
 
-          //if not the same
-          if (!valid) {
-            return res.status(401).json({ error: "Mot de passe d'origine incorrect !" });
-          }
+        //Compare Passwords
+        bcrypt.compare(oldpassword, user.password)
+          .then(valid => {
 
-          //if not valid
-          if (!schemaPassValid.validate(newpassword)) {
-            return res.status(401).json({ error: 'Sécurité du mot de passe faible. Il doit contenir au moins 8 caractère, des majuscules et deux chiffres' })
-          }
+            //if not the same
+            if (!valid) {
+              return res.status(401).json({ error: "Mot de passe d'origine incorrect !" });
+            }
 
-          //Init New password
-          bcrypt.hash(newpassword, 10)
-          .then(hash => {
-            const password = {
-              password : hash
-            };
+            //if not valid
+            if (!schemaPassValid.validate(newpassword)) {
+              return res.status(401).json({ error: 'Sécurité du mot de passe faible. Il doit contenir au moins 8 caractère, des majuscules et deux chiffres' })
+            }
 
-            //Send data to BDD
-            Param.update(password, { where: { id: id }})
-            .then(data => {
-              res.status(201).json({ message: 'Mot de passe modifié !' })
+            //Init New password
+            bcrypt.hash(newpassword, 10)
+            .then(hash => {
+              const password = {
+                password : hash
+              };
+
+              //Send data to BDD
+              Param.update(password, { where: { id: id }})
+              .then(data => {
+                res.status(201).json({ message: 'Mot de passe modifié !' })
+              })
+              .catch(error => res.status(500).json({ error }));
+
             })
             .catch(error => res.status(500).json({ error }));
-
           })
           .catch(error => res.status(500).json({ error }));
-        })
-        .catch(error => res.status(500).json({ error }));
+
+      //if not => error
+      }else{
+        res.status(401).json({
+          error: new Error('Invalid request!')
+        });
+      }
     })
     .catch(error => res.status(500).json({ error }));
 };
 
 exports.deleteUser = (req, res, next) => {
+  const token = req.headers.authorization.split(' ')[1];
+  const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
+  const roleId = decodedToken.roleId
+  const userId = decodedToken.userId
   const id = req.params.id;
+  
+  //if admin or if the creator =>
+  if (roleId === 2 || userId == id) {
 
-  //Get all post from one user
-  Post.findAll({ where: { userId: id } })
-  .then((posts) => {
+    //Get all post from one user
+    Post.findAll({ where: { userId: id } })
+    .then((posts) => {
 
-    //Delete Post and image
-    posts.forEach(post =>{
+      //Delete Post and image
+      posts.forEach(post =>{
 
-      //Delete if image
-      if (post.image != "") {
-        const filename = post.image.split('/images/')[1];
-        fs.unlink(`images/${filename}`, () => {
+        //Delete if image
+        if (post.image != "") {
+          const filename = post.image.split('/images/')[1];
+          fs.unlink(`images/${filename}`, () => {
+            Post.destroy({ where: { id : post.id }})
+            .catch(error => res.status(400).json({ error }));
+          });
+
+        //Delete if no image
+        }else{
           Post.destroy({ where: { id : post.id }})
           .catch(error => res.status(400).json({ error }));
-        });
+        }
+      })
 
-      //Delete if no image
-      }else{
-        Post.destroy({ where: { id : post.id }})
-        .catch(error => res.status(400).json({ error }));
-      }
-    })
+      //Get one user
+      Param.findByPk(id)
+      .then((user) => {
 
-    //Get one user
-    Param.findByPk(id)
-    .then((user) => {
+        //Delete if image
+        if (user.image != null) {
+          const filename = user.image.split('/images/')[1];
+          fs.unlink(`images/${filename}`, () => {
+            Param.destroy({ where: { id : id }})
+            .then(() => res.status(200).json({ message: 'Utilisateur supprimé !'}))
+            .catch(error => res.status(400).json({ error }));
+          });
 
-      //Delete if image
-      if (user.image != null) {
-        const filename = user.image.split('/images/')[1];
-        fs.unlink(`images/${filename}`, () => {
+        //Delete if no image
+        }else{
           Param.destroy({ where: { id : id }})
           .then(() => res.status(200).json({ message: 'Utilisateur supprimé !'}))
           .catch(error => res.status(400).json({ error }));
-        });
-
-      //Delete if no image
-      }else{
-        Param.destroy({ where: { id : id }})
-        .then(() => res.status(200).json({ message: 'Utilisateur supprimé !'}))
-        .catch(error => res.status(400).json({ error }));
-      }
+        }
+      })
+      .catch(
+        (error) => {
+          res.status(400).json({
+            error: error
+          });
+        }
+      );
     })
     .catch(
       (error) => {
@@ -209,12 +253,11 @@ exports.deleteUser = (req, res, next) => {
         });
       }
     );
-  })
-  .catch(
-    (error) => {
-      res.status(400).json({
-        error: error
-      });
-    }
-  );
+
+  //if not => error
+  }else{
+    res.status(401).json({
+      error: new Error('Invalid request!')
+    });
+  }
 };

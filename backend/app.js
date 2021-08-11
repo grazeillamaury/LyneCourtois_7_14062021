@@ -7,11 +7,6 @@ const commentRoutes = require('./routes/comment');
 const paramRoutes = require('./routes/param');
 
 const db = require("./models");
-/*db.sequelize.sync({ force: true }).then(() => {
-  db.roles.create({ name : "employé" })
-  db.roles.create({ name : "admin" })
-  console.log("Drop and re-sync db.");
-});*/
 
 const app = express();
 app.use(helmet());
