@@ -47,13 +47,10 @@ export default {
 	},
 	beforeMount(){
 		const userStorage = JSON.parse(sessionStorage.getItem('userToken'))
-		console.log(userStorage)
 		if (userStorage != null) {
-			console.log(true)
 			this.connected = true
 		}
 		else{
-			console.log(false)
 			this.connected = false
 		}
 	}

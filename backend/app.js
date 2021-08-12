@@ -6,8 +6,6 @@ const postRoutes = require('./routes/post');
 const commentRoutes = require('./routes/comment');
 const paramRoutes = require('./routes/param');
 
-const db = require("./models");
-
 const app = express();
 app.use(helmet());
 

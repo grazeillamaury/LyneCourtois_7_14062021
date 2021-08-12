@@ -43,7 +43,7 @@ exports.getAllPost = (req, res, next) => {
       ['date', 'DESC'],
       ['comments','date', 'ASC']
     ]
-  }, { limit: 50 })
+  })
   .then((posts) => {
     res.status(200).json(posts);
   })
