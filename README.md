@@ -11,5 +11,6 @@ Démarrer le projet :
 3. Et ensuite : npm run serve
 4. Aller dans le Back
 5. Ouvrir un terminal dans le dossier et faire : npm install
-6. et ensuite : node server
-7. Vous pouvez aller sur http://localhost:8080/
+6. Ouvrir le fichier .env et y placer les informations requises (la BDD, l'utilisateur et le MDP)
+7. Faire ensuite dans le terminal : node server
+8. Vous pouvez aller sur http://localhost:8080/
