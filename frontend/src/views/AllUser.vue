@@ -192,7 +192,7 @@ i{
         width: 80px;
         height: 80px;
         img{
-            width: 120px;
+            width: 140px;
         }
     }
 }
