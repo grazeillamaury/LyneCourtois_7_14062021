@@ -223,7 +223,7 @@ section{
         justify-content: center;
         padding: 2px;
         img{
-            width: 190px;
+            width: 240px;
             height: auto;
         }
         &:hover{
