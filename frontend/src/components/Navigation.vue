@@ -118,7 +118,7 @@ nav{
 	justify-content: center;
 	padding: 2px;
 	img{
-		width: 50px;
+		width: 80px;
 		height: auto;
 	}
 	&:hover{
@@ -177,8 +177,8 @@ header{
 		width: 60px;
 		height: 60px;
 		img{
-			width: 70px;
-		}
+            width: 100px;
+        }
 	}
 
 	#no_image_user{

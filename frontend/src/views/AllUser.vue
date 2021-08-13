@@ -75,23 +75,6 @@
 
             <router-link :to="{name: 'Parametre', params: { id: item.id }}"><SubmitButton class="btn-custom" value="Supprimer"/></router-link>
         </div>
-
-
-
-        <!-- <div v-for="item in users" :key="item.id">
-            <router-link :to="{name: 'User', params: { id: item.id }}">
-                <img v-if="item.image" :src="item.image" title="Tableau de bord" class="user_img">
-                <img v-else-if="item.sex === 'M'" src="../assets/user_male.svg" title="Tableau de bord" class="user_img">
-                <img v-else src="../assets/user_female.svg" title="Tableau de bord" class="user_img">
-            </router-link>
-            <div>
-                <h2>{{ item.username}}</h2>
-                <p v-if="item.roleId === 2">Admin</p>
-                <p v-else>Employé</p>
-            </div>
-            <p>{{ item.email }}</p>
-            <router-link :to="{name: 'Parametre', params: { id: item.id }}"><SubmitButton class="btn-post" value="Supprimer"/></router-link>
-        </div> -->
     </main>
 </template>
 
@@ -159,7 +142,7 @@ i{
     justify-content: center;
     padding: 2px;
     img{
-        width: 60px;
+        width: 90px;
         height: auto;
     }
     &:hover{
@@ -209,8 +192,7 @@ i{
         width: 80px;
         height: 80px;
         img{
-            width: 90px;
-            height: auto;
+            width: 120px;
         }
     }
 }

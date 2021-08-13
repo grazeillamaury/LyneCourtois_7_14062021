@@ -145,7 +145,7 @@ form{
     justify-content: center;
     padding: 2px;
     img{
-        width: 60px;
+        width: 90px;
         height: auto;
     }
     &:hover{

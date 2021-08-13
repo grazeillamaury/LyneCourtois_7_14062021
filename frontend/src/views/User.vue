@@ -172,7 +172,7 @@ main{
     justify-content: center;
     padding: 2px;
     img{
-        width: 60px;
+        width: 90px;
         height: auto;
     }
     &:hover{
@@ -192,9 +192,6 @@ a {
 /* User info  */
 
     aside{
-        display: flex;
-        flex-direction: column;
-        align-items: center;
         margin : 0 4%;
         div{
             width: 90%;
@@ -210,8 +207,9 @@ a {
         .user_img{
             width: 100px;
             height: 100px;
+            margin: auto;
             img{
-                width: 110px;
+                width: 160px;
             }
         }
     }
@@ -350,7 +348,7 @@ a {
                 width: 40px;
                 height: 40px;
                 img{
-                    width: 50px;
+                    width: 80px;
                 }
             }
         }
@@ -364,7 +362,7 @@ a {
         width: 60px;
         height: 60px;
         img{
-            width: 70px;
+            width: 100px;
             height: auto;
         }
     }

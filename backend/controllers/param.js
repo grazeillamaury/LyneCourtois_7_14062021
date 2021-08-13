@@ -75,10 +75,10 @@ exports.modifyParam = (req, res, next) => {
 
         //if image =>
         if (req.file){
-
           if(user.image){
+
             //delete original image
-            const filename = oldUser.image.split('/images/')[1];
+            const filename = user.image.split('/images/')[1];
             fs.unlink(`images/${filename}`, () => {
 
               //change param
